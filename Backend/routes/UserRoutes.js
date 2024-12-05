@@ -4,6 +4,7 @@ const UserController = require('../controller/UserController');
 
 //middleware
 const verifyToken = require('../helpers/verify-token');
+const {imagesUpload} = require('../helpers/image-upload');
 
 
 

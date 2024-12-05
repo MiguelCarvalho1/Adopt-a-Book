@@ -26,6 +26,9 @@ const Book = mongoose.model(
             description: {
                 type: String,
             },
+            quantity: {
+                type: Number,
+            },
             imageUrl: {
                 type: String,
             },
