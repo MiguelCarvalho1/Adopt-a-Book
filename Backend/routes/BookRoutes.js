@@ -1,17 +1,15 @@
-const router = require('express').Router();
-const BookController = require('../controllers/BookController');
-
-
-const { verifyToken } = require('../helpers/verify-token');
-const {imagesUpload} = require('../helpers/image-upload');
+const router = require("express").Router();
+const BookController = require("../controller/BookController");
+const  verifyToken  = require("../helpers/verify-token");
+const { imagesUpload } = require("../helpers/image-upload");
 
 
 
-router.post('/add', verifyToken, imagesUpload.array('images'), BookController.addBook); 
 router.get('/', BookController.getBooks);
-router.get('/:id', BookController.getBookById);
+router.post('/create', verifyToken, imagesUpload.array('images'), BookController.create);
 router.get('/mybooks', verifyToken, BookController.getMyBooks);
-router.put('/:id', verifyToken,imagesUpload.array('images'), BookController.updateBook);
-router.delete('/:id', verifyToken, BookController.deleteBook);
+router.get('/:id', BookController.getBookById);
+router.put('/:id', verifyToken, imagesUpload.array("images"), BookController.updateBook);
+router.delete('/:id', verifyToken, BookController.removeBook);
 
 module.exports = router;

@@ -28,20 +28,17 @@ const Book = mongoose.model(
             },
             quantity: {
                 type: Number,
+                required : true,
             },
-            imageUrl: {
-                type: String,
-            },
+            images: {
+                type: Array,
+                required: true,
+              },
             transactionType: {
                 type: String,
-                enum: ["Exchange", "Donation"], 
                 required: true,
             },
-            ownerId: {
-                type: Schema.Types.ObjectId,
-                ref: "User", 
-                required: true,
-            },
+            user: Object,
         },
         { timestamps: true },
     ),

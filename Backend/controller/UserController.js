@@ -1,12 +1,12 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const createUserToken = require("../helpers/create-user-token");
 const getUserByToken = require("../helpers/get-user-by-token");
-const jwt = require("jsonwebtoken");
 const getToken = require("../helpers/get-token");
 
 module.exports = class UserController {
-  //Register
+  // Register
   static async register(req, res) {
     const { name, email, password, confirmpassword } = req.body;
 
@@ -19,9 +19,12 @@ module.exports = class UserController {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    // Normalize email
+    const normalizedEmail = email.toLowerCase();
+
     // Check if user already exists
-    const userExist = await User.findOne({ email: normalizedEmail });
-    if (userExist) {
+    const userExists = await User.findOne({ email: normalizedEmail });
+    if (userExists) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
@@ -37,7 +40,7 @@ module.exports = class UserController {
     });
 
     try {
-      const newUser = await newUser.save();
+      const newUser = await user.save();
       await createUserToken(newUser, req, res);
     } catch (error) {
       console.error("Error during user registration:", error);
@@ -45,111 +48,119 @@ module.exports = class UserController {
     }
   }
 
-  //Login
+  // Login
   static async login(req, res) {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email: email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (!email) {
-      return res.status(404).json({ message: "Email not found" });
-    }
-    if (!password) {
-      return res.status(404).json({ message: "Password required!" });
-    }
-    //check password
+
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(404).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-    //create token
+
+    // Create token
     await createUserToken(user, req, res);
   }
+
+  static async getUserById(req, res) {
+    const { id } = req.params;
+  
+    try {
+      // Buscar o usuário pelo ID e excluir o campo de senha
+      const user = await User.findById(id).select("-password");
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
+  // Check current user
   static async checkUser(req, res) {
-    let currentUser;
-    if (req.headers.authorization) {
+    try {
       const token = getToken(req);
       const decoded = jwt.verify(token, "ourSecret");
-      currentUser = await User.findById(decoded.id);
-      currentUser.password = undefined;
-    } else {
-      currentUser = null;
-      return res.status(401).json({ message: "Unauthorized" });
+      const currentUser = await User.findById(decoded.id).select("-password");
+
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      res.status(200).json(currentUser);
+    } catch (error) {
+      console.error("Error checking user:", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-    req.status(200).send(currentUser);
   }
 
-  //Check User By Id
+  // Check user by ID
   static async checkUserById(req, res) {
     const id = req.params.id;
-    const user = await User.findById(id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+
+    try {
+      const user = await User.findById(id).select("-password");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-    res.status(200).json({ user });
   }
 
-  //Edit user
+  // Edit user
   static async editUser(req, res) {
     const id = req.params.id;
     const token = getToken(req);
     const user = await getUserByToken(token);
 
-    
-    if(req.file){
-        user.image = req.file.filename;
-    }
-
-    // validation
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const { name, email, password, phone, confirmpassword } = req.body;
 
-    // validation
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
-    user.name = name;
+    // Update user fields
+    if (name) user.name = name;
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+    if (email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists && user.email !== email) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      user.email = email.toLowerCase();
     }
 
-    // verify email
-    const userExists = await User.findOne({ email });
-    if (user.email !== email && userExists) {
-      return res.status(400).json({ message: "Email already in use" });
-    }
-    user.email = email;
-
-    if (password !== confirmpassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    } else if (password === confirmpassword && password != null) {
-      // Hash new password
+    if (password && password === confirmpassword) {
       const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash(password, salt);
-      user.password = passwordHash;
+      user.password = await bcrypt.hash(password, salt);
+    } else if (password !== confirmpassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    if (!phone) {
-      return res.status(400).json({ message: "Phone is required" });
-    }
-    user.phone = phone;
+    if (phone) user.phone = phone;
+
+    if (req.file) user.image = req.file.filename;
 
     try {
-      await User.findOneAndUpdate(
-        { _id: user._id },
-        { $set: user },
-        { new: true }
-      ); //save user
-
-      res.status(200).json({
-        message: "User updated successfully",
-      });
+      await User.findByIdAndUpdate(user._id, user, { new: true });
+      res.status(200).json({ message: "User updated successfully" });
     } catch (error) {
       console.error("Error updating user:", error);
       res.status(500).json({ message: "Internal Server Error" });

@@ -19,4 +19,16 @@ app.use('/users', UserRoutes);
 const BookRoutes = require('./routes/BookRoutes');
 app.use('/books', BookRoutes);
 
+const TransactionRoutes = require('./routes/transactionRoutes');
+app.use('/transactions', TransactionRoutes);
+
+const ReviewRoutes = require('./routes/reviewRoutes');
+app.use('/reviews', ReviewRoutes);
+
+const UserBadgeRoutes = require('./routes/userBadgeRoutes');
+app.use('/user-badges', UserBadgeRoutes);
+
+const BadgeRoutes = require('./routes/badgeRoutes');
+app.use('/badges', BadgeRoutes);
+
 app.listen(5001); 

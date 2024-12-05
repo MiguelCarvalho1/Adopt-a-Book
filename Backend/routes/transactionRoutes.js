@@ -1,7 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const TransactionController = require('../controllers/TransactionController');
-const { verifyToken } = require('../helpers/verify-token');
+const router = require('express').Router();
+const TransactionController = require('../controller/TransactionController');
+const  verifyToken  = require("../helpers/verify-token");
 
 router.post('/', verifyToken, TransactionController.createTransaction); 
 router.get('/', verifyToken, TransactionController.getAllTransactions); 
