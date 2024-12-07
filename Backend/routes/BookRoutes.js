@@ -12,4 +12,6 @@ router.get('/:id', BookController.getBookById);
 router.put('/:id', verifyToken, imagesUpload.array("images"), BookController.updateBook);
 router.delete('/:id', verifyToken, BookController.removeBook);
 
+router.get('/home', BookController.getHomeBooks);
+
 module.exports = router;

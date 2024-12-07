@@ -4,6 +4,28 @@ const Book = require("../models/Book");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 module.exports = class BookController {
+
+
+
+    static async getHomeBooks(req, res) {
+        try {
+          
+          const query = 'bestseller'; 
+          const books = await BookService.searchBooks(query);
+          res.status(200).json(books); 
+        } catch (error) {
+          res.status(500).json({ message: 'Erro ao buscar livros.', error: error.message });
+        }
+      }
+    
+
+
+
+
+
+
+
+
     static async create(req, res) {
         const { title, author, genre, language, condition, description, quantity, transactionType } = req.body;
         const images = req.files;

@@ -1,0 +1,21 @@
+
+/* container.module.css */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  
+  .container.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .container.column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  

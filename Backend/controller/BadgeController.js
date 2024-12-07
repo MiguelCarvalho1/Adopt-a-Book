@@ -1,6 +1,11 @@
 const Badge = require('../models/Badge');
 
 module.exports = class BadgeController {
+
+
+
+
+
     static async createBadge(req, res) {
         const { name, description } = req.body;
 

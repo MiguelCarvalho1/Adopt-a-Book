@@ -1,0 +1,19 @@
+/* footer.module.css */
+.footer {
+    text-align: center;
+    padding: 16px;
+    background-color: #343a40;
+    color: #fff;
+    font-size: 0.875rem;
+  }
+  
+  .footer a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .footer a:hover {
+    color: #0056b3;
+  }
+  
