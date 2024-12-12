@@ -1,21 +1,57 @@
 
 /* container.module.css */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f0f4ff, #d6e0ff);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.container.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+
+.container.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+.container.column > * {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.container.column > *:hover {
+  transform: scale(1.05);
+  background-color: #f7f9ff;
+}
+
+@media (max-width: 768px) {
+  .container {
+      padding: 12px;
   }
-  
+
   .container.center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+      height: auto;
+      padding: 24px;
   }
-  
+
   .container.column {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+      gap: 12px;
   }
-  
+}

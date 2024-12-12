@@ -1,4 +1,5 @@
-const router = require('express').Router();
+const express = require('express');
+const router = express.Router();
 
 const UserController = require('../controller/UserController');
 
@@ -6,7 +7,7 @@ const UserController = require('../controller/UserController');
 const verifyToken = require('../helpers/verify-token');
 const { imagesUpload } = require('../helpers/image-upload');
 
-// Rotas de usuário
+// Rotas user
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 router.get('/checkuser', UserController.checkUser);

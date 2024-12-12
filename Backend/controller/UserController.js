@@ -1,169 +1,235 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const createUserToken = require("../helpers/create-user-token");
-const getUserByToken = require("../helpers/get-user-by-token");
-const getToken = require("../helpers/get-token");
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const User = require('../models/User')
+
+// helpers
+const getUserByToken = require('../helpers/get-user-by-token')
+const getToken = require('../helpers/get-token')
+const createUserToken = require('../helpers/create-user-token')
+const { imageUpload } = require('../helpers/image-upload')
 
 module.exports = class UserController {
-  // Register
   static async register(req, res) {
-    const { name, email, password, confirmpassword } = req.body;
+    const name = req.body.name
+    const email = req.body.email
+    const location = req.body.location
+    const password = req.body.password
+    const confirmpassword = req.body.confirmpassword
 
-    // Validation
-    if (!name || !email || !password || !confirmpassword) {
-      return res.status(400).json({ message: "Please fill all fields" });
+    // validations
+    if (!name) {
+      res.status(422).json({ message: 'Name required!' })
+      return
     }
 
-    if (password !== confirmpassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+    if (!email) {
+      res.status(422).json({ message: 'Email is mandatory!' })
+      return
     }
 
-    // Normalize email
-    const normalizedEmail = email.toLowerCase();
+    if (!location) {
+      res.status(422).json({ message: 'Location is mandatory!' })
+      return
+    }
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email: normalizedEmail });
+    if (!password) {
+      res.status(422).json({ message: 'The password is mandatory!' })
+      return
+    }
+
+    if (!confirmpassword) {
+      res.status(422).json({ message: 'Password confirmation is mandatory!' })
+      return
+    }
+
+    if (password != confirmpassword) {
+      res
+        .status(422)
+        .json({ message: 'The password and confirmation must be the same!' })
+      return
+    }
+
+    // check if user exists
+    const userExists = await User.findOne({ email: email })
+
     if (userExists) {
-      return res.status(400).json({ message: "Email already exists" });
+      res.status(422).json({ message: 'Please use another e-mail address!' })
+      return
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // create password
+    const salt = await bcrypt.genSalt(12)
+    const passwordHash = await bcrypt.hash(password, salt)
 
-    // Create user
+    // create user
     const user = new User({
-      name,
-      email: normalizedEmail,
-      password: hashedPassword,
-    });
+      name: name,
+      email: email,
+      password: passwordHash,
+      location: location,
+    })
 
     try {
-      const newUser = await user.save();
-      await createUserToken(newUser, req, res);
+      const newUser = await user.save()
+
+      await createUserToken(newUser, req, res)
     } catch (error) {
-      console.error("Error during user registration:", error);
-      res.status(500).json({ message: "Error registering user" });
+      res.status(500).json({ message: error })
     }
   }
 
-  // Login
   static async login(req, res) {
-    const { email, password } = req.body;
+    const email = req.body.email
+    const password = req.body.password
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+    if (!email) {
+      res.status(422).json({ message: 'Email is mandatory!' })
+      return
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!password) {
+      res.status(422).json({ message: 'The password is mandatory!' })
+      return
+    }
+
+    // check if user exists
+    const user = await User.findOne({ email: email })
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(422)
+        .json({ message: 'There is no user registered with this e-mail address!' })
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    // check if password match
+    const checkPassword = await bcrypt.compare(password, user.password)
+
+    if (!checkPassword) {
+      return res.status(422).json({ message: 'Invalid password' })
     }
 
-    // Create token
-    await createUserToken(user, req, res);
+    await createUserToken(user, req, res)
+  }
+
+  static async checkUser(req, res) {
+    let currentUser
+
+    console.log(req.headers.authorization)
+
+    if (req.headers.authorization) {
+      const token = getToken(req)
+      const decoded = jwt.verify(token, 'ourSecret')
+
+      currentUser = await User.findById(decoded.id)
+
+      currentUser.password = undefined
+    } else {
+      currentUser = null
+    }
+
+    res.status(200).send(currentUser)
   }
 
   static async getUserById(req, res) {
-    const { id } = req.params;
-  
-    try {
-      // Buscar o usuário pelo ID e excluir o campo de senha
-      const user = await User.findById(id).select("-password");
-  
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-  
-      res.status(200).json(user);
-    } catch (error) {
-      console.error("Error fetching user by ID:", error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
+    const id = req.params.id
 
-  // Check current user
-  static async checkUser(req, res) {
-    try {
-      const token = getToken(req);
-      const decoded = jwt.verify(token, "ourSecret");
-      const currentUser = await User.findById(decoded.id).select("-password");
-
-      if (!currentUser) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      res.status(200).json(currentUser);
-    } catch (error) {
-      console.error("Error checking user:", error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
-
-  // Check user by ID
-  static async checkUserById(req, res) {
-    const id = req.params.id;
-
-    try {
-      const user = await User.findById(id).select("-password");
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      res.status(200).json(user);
-    } catch (error) {
-      console.error("Error fetching user by ID:", error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
-
-  // Edit user
-  static async editUser(req, res) {
-    const id = req.params.id;
-    const token = getToken(req);
-    const user = await getUserByToken(token);
+    const user = await User.findById(id)
 
     if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(422).json({ message: 'User not found!' })
+      return
     }
 
-    const { name, email, password, phone, confirmpassword } = req.body;
+    res.status(200).json({ user })
+  }
 
-    // Update user fields
-    if (name) user.name = name;
+  static async editUser(req, res) {
+    const token = getToken(req)
 
-    if (email) {
-      const emailExists = await User.findOne({ email });
-      if (emailExists && user.email !== email) {
-        return res.status(400).json({ message: "Email already in use" });
-      }
-      user.email = email.toLowerCase();
+    //console.log(token);
+
+    const user = await getUserByToken(token)
+
+    // console.log(user);
+    // console.log(req.body)
+    // console.log(req.file.filename)
+
+    const name = req.body.name
+    const email = req.body.email
+    const location = req.body.location
+    const password = req.body.password
+    const confirmpassword = req.body.confirmpassword
+
+    let image = ''
+
+    if (req.file) {
+      image = req.file.filename
     }
 
-    if (password && password === confirmpassword) {
-      const salt = await bcrypt.genSalt(12);
-      user.password = await bcrypt.hash(password, salt);
-    } else if (password !== confirmpassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+    // validations
+    if (!name) {
+      res.status(422).json({ message: 'Name required!' })
+      return
     }
 
-    if (phone) user.phone = phone;
+    user.name = name
 
-    if (req.file) user.image = req.file.filename;
+    if (!email) {
+      res.status(422).json({ message: 'Email is mandatory!' })
+      return
+    }
+
+    // check if user exists
+    const userExists = await User.findOne({ email: email })
+
+    if (user.email !== email && userExists) {
+      res.status(422).json({ message: 'Please use another e-mail address!' })
+      return
+    }
+
+    user.email = email
+
+    if (image) {
+      const imageName = req.file.filename
+      user.image = imageName
+    }
+
+    if (!location) {
+      res.status(422).json({ message: 'Location is mandatory!' })
+      return
+    }
+
+    user.location = location
+
+    // check if password match
+    if (password != confirmpassword) {
+      res.status(422).json({ error: "The passwords don't match." })
+
+      // change password
+    } else if (password == confirmpassword && password != null) {
+      // creating password
+      const salt = await bcrypt.genSalt(12)
+      const reqPassword = req.body.password
+
+      const passwordHash = await bcrypt.hash(reqPassword, salt)
+
+      user.password = passwordHash
+    }
 
     try {
-      await User.findByIdAndUpdate(user._id, user, { new: true });
-      res.status(200).json({ message: "User updated successfully" });
+      // returns updated data
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $set: user },
+        { new: true },
+      )
+      res.json({
+        message: 'User successfully updated!',
+        data: updatedUser,
+      })
     } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: error })
     }
   }
-};
+}
