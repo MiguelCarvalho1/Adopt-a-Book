@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const createUserToken = async(user, req, res) =>{
     const token = jwt.sign({
         name : user.name,
-        id : user_id
+        id : user._id
         },
         "ourSecret"
     );
@@ -12,7 +12,7 @@ const createUserToken = async(user, req, res) =>{
     res.status(200).json({
         message: "You're connected!",
         token: token,
-        userId : user_id,
+        userId : user._id,
         });
 }
 module.exports = createUserToken;

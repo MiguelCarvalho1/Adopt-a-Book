@@ -5,7 +5,7 @@ const UserController = require('../controller/UserController');
 
 // Middleware
 const verifyToken = require('../helpers/verify-token');
-const { imagesUpload } = require('../helpers/image-upload');
+const { imageUpload } = require('../helpers/image-upload');
 
 // Rotas user
 router.post('/register', UserController.register);
@@ -15,11 +15,11 @@ router.get('/:id', UserController.getUserById);
 
 
 
+
 router.patch(
     '/edit/:id',
     verifyToken,
-    imagesUpload.array('images'),
+    imageUpload.single('image'),
     UserController.editUser
-);
-
+  );
 module.exports = router;

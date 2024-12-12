@@ -3,23 +3,25 @@ const getToken = require("../helpers/get-token");
 const Book = require("../models/Book");
 const ObjectId = require("mongoose").Types.ObjectId;
 
+const BookService = require('../service/BookService');  
+
 module.exports = class BookController {
 
 
 
     static async getHomeBooks(req, res) {
         try {
-          
-          const query = 'bestseller'; 
+          const query = 'bestseller'; // Exemplo de busca
           const books = await BookService.searchBooks(query);
+          if (books.length === 0) {
+            return res.status(404).json({ message: 'No books found' });
+          }
           res.status(200).json(books); 
         } catch (error) {
-          res.status(500).json({ message: 'Erro ao buscar livros.', error: error.message });
+          res.status(500).json({ message: 'Error fetching books', error: error.message });
         }
       }
-    
-
-
+      
 
 
 

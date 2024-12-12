@@ -131,6 +131,7 @@ module.exports = class UserController {
     res.status(200).send(currentUser)
   }
 
+  
   static async getUserById(req, res) {
     const id = req.params.id
 
@@ -144,92 +145,86 @@ module.exports = class UserController {
     res.status(200).json({ user })
   }
 
+
   static async editUser(req, res) {
-    const token = getToken(req)
-
-    //console.log(token);
-
-    const user = await getUserByToken(token)
-
-    // console.log(user);
-    // console.log(req.body)
-    // console.log(req.file.filename)
-
-    const name = req.body.name
-    const email = req.body.email
-    const location = req.body.location
-    const password = req.body.password
-    const confirmpassword = req.body.confirmpassword
-
-    let image = ''
-
-    if (req.file) {
-      image = req.file.filename
+    const token = getToken(req);
+  
+   
+    if (!token) {
+      return res.status(401).json({ message: "No token provided!" });
     }
-
-    // validations
-    if (!name) {
-      res.status(422).json({ message: 'Name required!' })
-      return
-    }
-
-    user.name = name
-
-    if (!email) {
-      res.status(422).json({ message: 'Email is mandatory!' })
-      return
-    }
-
-    // check if user exists
-    const userExists = await User.findOne({ email: email })
-
-    if (user.email !== email && userExists) {
-      res.status(422).json({ message: 'Please use another e-mail address!' })
-      return
-    }
-
-    user.email = email
-
-    if (image) {
-      const imageName = req.file.filename
-      user.image = imageName
-    }
-
-    if (!location) {
-      res.status(422).json({ message: 'Location is mandatory!' })
-      return
-    }
-
-    user.location = location
-
-    // check if password match
-    if (password != confirmpassword) {
-      res.status(422).json({ error: "The passwords don't match." })
-
-      // change password
-    } else if (password == confirmpassword && password != null) {
-      // creating password
-      const salt = await bcrypt.genSalt(12)
-      const reqPassword = req.body.password
-
-      const passwordHash = await bcrypt.hash(reqPassword, salt)
-
-      user.password = passwordHash
-    }
-
+  
     try {
-      // returns updated data
+      const user = await getUserByToken(token);
+  
+     
+      if (!user) {
+        return res.status(404).json({ message: "User not found!" });
+      }
+  
+      const { name, email, location, password, confirmpassword } = req.body;
+      let image = '';
+  
+      if (req.file) {
+        image = req.file.filename;
+      }
+  
+      
+      if (!name) {
+        return res.status(422).json({ message: 'Name is required!' });
+      }
+      user.name = name;
+  
+      if (!email) {
+        return res.status(422).json({ message: 'Email is mandatory!' });
+      }
+  
+      
+      const userExists = await User.findOne({ email: email });
+  
+      if (user.email !== email && userExists) {
+        return res.status(422).json({ message: 'Email is already in use. Please choose another one.' });
+      }
+      user.email = email;
+  
+      
+      if (image) {
+        user.image = image;
+      }
+  
+      if (!location) {
+        return res.status(422).json({ message: 'Location is mandatory!' });
+      }
+      user.location = location;
+  
+     
+      if (password !== confirmpassword) {
+        return res.status(422).json({ message: "The passwords don't match." });
+      }
+  
+      if (password && password === confirmpassword) {
+        const salt = await bcrypt.genSalt(12);
+        const passwordHash = await bcrypt.hash(password, salt);
+        user.password = passwordHash; 
+      }
+  
+      
       const updatedUser = await User.findOneAndUpdate(
         { _id: user._id },
         { $set: user },
-        { new: true },
-      )
+        { new: true }
+      );
+  
+      
       res.json({
         message: 'User successfully updated!',
         data: updatedUser,
-      })
+      });
+  
     } catch (error) {
-      res.status(500).json({ message: error })
+      console.error(error);  
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   }
+  
 }

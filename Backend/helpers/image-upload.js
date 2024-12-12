@@ -1,32 +1,34 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
 
+// Destination to store image
 const imageStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        let folder = "";
-        if(req.baseUrl.includes('users')){
-            folder = "users";
-        }else if(req.baseUrl.includes('books')){
-            folder = "books";
-        }
-        cb(null, `public/images/${folder}`);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now()  + String(Math.floor(Math.random() * 1000))  + path.extname(file.originalname));
-    },
-});
+  destination: function (req, file, cb) {
+    let folder = "";
 
-const imagesUpload = multer({
-    storage: imageStorage,
-    fileFilter(req, res, cb){
-       if(!file.originalname.match(/\.(png|jpg)$/)){
-        return cb(new Error('Only image files are allowed!'))
-       }
-       cb(undefined, true);
+    console.log(req)
+
+    if (req.baseUrl.includes('users')) {
+      folder = "users";
+    } else if (req.baseUrl.includes('books')) {
+      folder = "books";
     }
-    
+    cb(null, `public/images/${folder}/`);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 
-module.exports = {imagesUpload};
+const imageUpload = multer({
+  storage: imageStorage,
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(png|jpg)$/)) {
+      // upload only png and jpg format
+      return cb(new Error("Please only send png or jpg!"));
+    }
+    cb(undefined, true);
+  },
+});
 
-
+module.exports = { imageUpload };

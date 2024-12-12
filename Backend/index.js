@@ -32,4 +32,5 @@ app.use('/user-badges', UserBadgeRoutes);
 const BadgeRoutes = require('./routes/badgeRoutes');
 app.use('/badges', BadgeRoutes);
 
+
 app.listen(5001); 

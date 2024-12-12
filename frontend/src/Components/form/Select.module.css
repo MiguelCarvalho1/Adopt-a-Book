@@ -1,0 +1,58 @@
+.form_control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5em;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .form_control label {
+    margin-bottom: 0.6em;
+    font-weight: bold;
+    color: #333;
+    transition: color 0.3s ease;
+  }
+  
+  .form_control label:hover {
+    color: #16479d;
+  }
+  
+  .form_control select {
+    padding: 0.8em;
+    border: 1px solid #777;
+    border-radius: 8px;
+    font-size: 1em;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: #f7f7f7;
+  }
+  
+  .form_control select:focus {
+    border-color: #16479d;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(22, 71, 157, 0.5);
+  }
+  
+  .form_control select:hover {
+    border-color: #ffd400;
+    cursor: pointer;
+  }
+  
+  .form_control select option {
+    padding: 0.6em;
+  }
+  
+  .form_control input:focus + label,
+  .form_control select:focus + label {
+    font-size: 0.9em;
+    color: #16479d;
+    transform: translateY(-1.2em);
+  }
+  
+  
+  .form_control input:valid + label,
+  .form_control select:valid + label {
+    font-size: 0.9em;
+    color: #16479d;
+    transform: translateY(-1.2em);
+  }
+  
