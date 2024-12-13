@@ -4,8 +4,8 @@ import { useState } from "react";
 import Select from "./Select";
 
 function BookForm({ handleSubmit, bookData, btnText }) {
-  const [book, setBook] = useState(bookData || {});  // Dados do livro
-  const [preview, setPreview] = useState([]);  // Para mostrar a imagem do livro
+  const [book, setBook] = useState(bookData || {}); // Dados do livro
+  const [preview, setPreview] = useState([]); // Para mostrar a imagem do livro
 
   const conditions = ["New", "Used", "Like New", "Good", "Acceptable"];
   const transactionTypes = ["Sell", "Donate", "Exchange"];
@@ -13,8 +13,8 @@ function BookForm({ handleSubmit, bookData, btnText }) {
   // Função para lidar com o upload das imagens
   function onFileChange(e) {
     const files = Array.from(e.target.files);
-    setPreview(files); 
-    setBook({ ...book, images: files });  // Atualiza as imagens no estado
+    setPreview(files);
+    setBook({ ...book, images: files }); // Atualiza as imagens no estado
   }
 
   // Função para lidar com as mudanças nos campos de texto
@@ -23,18 +23,19 @@ function BookForm({ handleSubmit, bookData, btnText }) {
   }
 
   // Função para lidar com a seleção de opções
-  function handleSelectChange(e, fieldName) {
+  function handleSelectChange(e) {
+    const { name, value } = e.target;
     setBook({
       ...book,
-      [fieldName]: e.target.value,
+      [name]: value,
     });
   }
 
   // Função para submeter o formulário
   function submit(e) {
     e.preventDefault();
-    console.log(book);  // Mostra os dados do livro para depuração
-    handleSubmit(book);  // Chama a função de envio com os dados do livro
+    console.log(book); // Mostra os dados do livro para depuração
+    handleSubmit(book); // Chama a função de envio com os dados do livro
   }
 
   return (
@@ -57,7 +58,7 @@ function BookForm({ handleSubmit, bookData, btnText }) {
               />
             ))}
       </div>
-      
+
       {/* Campo para adicionar imagens do livro */}
       <Input
         text="Book Image"

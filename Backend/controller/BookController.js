@@ -1,197 +1,318 @@
-const getUserByToken = require("../helpers/get-user-by-token");
-const getToken = require("../helpers/get-token");
-const Book = require("../models/Book");
-const ObjectId = require("mongoose").Types.ObjectId;
+const Book = require('../models/Book')
 
-const BookService = require('../service/BookService');  
+// helpers
+const getUserByToken = require('../helpers/get-user-by-token')
+const getToken = require('../helpers/get-token')
+const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = class BookController {
+  // create a book
+  static async create(req, res) {
+    const title = req.body.title
+    const author = req.body.author
+    const genre = req.body.genre
+    const language = req.body.language
+    const condition = req.body.condition
+    const description = req.body.description
+    const quantity = req.body.quantity
+    const images = req.files
+    const transactionType = req.body.transactionType
+    const available = true
 
+    // validations
+    if (!title) {
+      res.status(422).json({ message: 'The title is mandatory!' })
+      return
+    }
 
+    if (!author) {
+      res.status(422).json({ message: 'Author is mandatory!' })
+      return
+    }
 
-    static async getHomeBooks(req, res) {
-        try {
-          const query = 'bestseller'; // Exemplo de busca
-          const books = await BookService.searchBooks(query);
-          if (books.length === 0) {
-            return res.status(404).json({ message: 'No books found' });
-          }
-          res.status(200).json(books); 
-        } catch (error) {
-          res.status(500).json({ message: 'Error fetching books', error: error.message });
-        }
+    if (!condition) {
+      res.status(422).json({ message: 'Condition is mandatory!' })
+      return
+    }
+
+    if (!quantity) {
+      res.status(422).json({ message: 'Quantity is mandatory!' })
+      return
+    }
+
+    if (!images) {
+      res.status(422).json({ message: 'The image is mandatory!' })
+      return
+    }
+
+    // get user
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    // create book
+    const book = new Book({
+      title: title,
+      author: author,
+      genre: genre,
+      language: language,
+      condition: condition,
+      description: description,
+      quantity: quantity,
+      images: [],
+      transactionType: transactionType,
+      available: available,
+      user: {
+        _id: user._id,
+        name: user.name,
+        image: user.image,
+        phone: user.phone,
+      },
+    })
+
+    images.map((image) => {
+      book.images.push(image.filename)
+    })
+
+    try {
+      const newBook = await book.save()
+
+      res.status(201).json({
+        message: 'Book successfully registered!',
+        newBook: newBook,
+      })
+    } catch (error) {
+      res.status(500).json({ message: error })
+    }
+  }
+
+  // get all registered books
+  static async getAll(req, res) {
+    const books = await Book.find().sort('-createdAt')
+
+    res.status(200).json({
+      books: books,
+    })
+  }
+
+  // get all user books
+  static async getAllUserBooks(req, res) {
+    // get user
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const books = await Book.find({ 'user._id': user._id })
+
+    res.status(200).json({
+      books,
+    })
+  }
+
+  // get all user borrowed books
+  static async getAllUserBorrowedBooks(req, res) {
+    // get user
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const books = await Book.find({ 'borrower._id': user._id })
+
+    res.status(200).json({
+      books,
+    })
+  }
+
+  // get a specific book
+  static async getBookById(req, res) {
+    const id = req.params.id
+
+    // check if id is valid
+    if (!ObjectId.isValid(id)) {
+      res.status(422).json({ message: 'Invalid ID!' })
+      return
+    }
+
+    // check if book exists
+    const book = await Book.findOne({ _id: id })
+
+    if (!book) {
+      res.status(404).json({ message: 'Book not found!' })
+      return
+    }
+
+    res.status(200).json({
+      book: book,
+    })
+  }
+
+  // remove a book by id
+  static async removeBookById(req, res) {
+    const id = req.params.id
+
+    try {
+      // Verifica se o Book existe
+      const book = await Book.findById(id)
+      if (!book) {
+        return res.status(404).json({ message: 'Book not found!' })
       }
-      
 
+      // Remove o Book
+      await Book.findByIdAndDelete(id)
 
+      return res.status(200).json({ message: 'Book removed successfully!' })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ message: 'An error occurred while removing the book.' })
+    }
+  }
 
+  // update a book
+  static async updateBook(req, res) {
+    const id = req.params.id
+    const title = req.body.title
+    const author = req.body.author
+    const genre = req.body.genre
+    const language = req.body.language
+    const condition = req.body.condition
+    const description = req.body.description
+    const quantity = req.body.quantity
+    const images = req.files
+    const transactionType = req.body.transactionType
+    const available = req.body.available
 
+    const updateData = {}
 
+    // check if book exists
+    const book = await Book.findOne({ _id: id })
 
-    static async create(req, res) {
-        const { title, author, genre, language, condition, description, quantity, transactionType } = req.body;
-        const images = req.files;
-    
-        // Validação
-        if (!title || !author || !condition || !quantity || !transactionType || images.length === 0) {
-          return res.status(400).json({ message: "Todos os campos obrigatórios devem ser preenchidos." });
-        }
-    
-        const token = getToken(req);
-        const user = await getUserByToken(token);
-    
-        const book = new Book({
-          title,
-          author,
-          genre,
-          language,
-          condition,
-          description,
-          quantity,
-          images: [],
-          transactionType,
-          user: {
-            _id: user._id,
-            name: user.name,
-            image: user.profileImage,
-          },
-        });
-    
-        images.map((image) => {
-          book.images.push(image.filename);
-        });
-    
-        try {
-          const newBook = await book.save();
-          return res.status(201).json(newBook);
-        } catch (error) {
-          return res.status(400).json({ message: "Erro ao criar o livro." });
-        }
+    if (!book) {
+      res.status(404).json({ message: 'Book not found!' })
+      return
+    }
+
+    // check if user registered this book
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    if (book.user._id.toString() != user._id.toString()) {
+      res.status(404).json({
+        message:
+          'There was a problem processing your request, please try again later!',
+      })
+      return
+    }
+
+    // validations
+    if (!title) {
+      res.status(422).json({ message: 'The title is mandatory!' })
+      return
+    } else {
+      updateData.title = title
+    }
+
+    if (!author) {
+      res.status(422).json({ message: 'Author is mandatory!' })
+      return
+    } else {
+      updateData.author = author
+    }
+
+    if (!condition) {
+      res.status(422).json({ message: 'Condition is mandatory!' })
+      return
+    } else {
+      updateData.condition = condition
+    }
+
+    if (!quantity) {
+      res.status(422).json({ message: 'Quantity is mandatory!' })
+      return
+    } else {
+      updateData.quantity = quantity
+    }
+
+    if (!images) {
+      res.status(422).json({ message: 'The image is mandatory!' })
+      return
+    } else {
+      updateData.images = []
+      images.map((image) => {
+        updateData.images.push(image.filename)
+      })
+    }
+
+    if (!transactionType) {
+      res.status(422).json({ message: 'Transaction type is mandatory!' })
+      return
+    } else {
+      updateData.transactionType = transactionType
+    }
+
+    if (available !== undefined) {
+      updateData.available = available
+    }
+
+    updateData.description = description
+
+    await Book.findByIdAndUpdate(id, updateData)
+
+    res.status(200).json({ book: book, message: 'Book successfully updated!' })
+  }
+
+  // schedule a visit to borrow a book
+  static async schedule(req, res) {
+    const id = req.params.id
+
+    // check if book exists
+    const book = await Book.findOne({ _id: id })
+
+    // check if user owns this book
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    if (book.user._id.equals(user._id)) {
+      res.status(422).json({
+        message: "You can't borrow your own book!",
+      })
+      return
+    }
+
+    // check if user has already borrowed this book
+    if (book.borrower) {
+      if (book.borrower._id.equals(user._id)) {
+        res.status(422).json({
+          message: "You've already borrowed this book!",
+        })
+        return
       }
-
-    static async getBooks(req, res) {
-        try {
-            const books = await Book.find().sort("-createdAt");
-            res.status(200).json({ books });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Erro no servidor." });
-        }
     }
 
-    static async getMyBooks(req, res) {
-        try {
-            const token = getToken(req);
-            const user = await getUserByToken(token);
-
-            if (!user) {
-                return res.status(401).json({ message: "Usuário não autorizado." });
-            }
-
-            const books = await Book.find({ "user._id": user._id }).sort("-createdAt");
-            res.status(200).json({ books });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ message: "Erro no servidor." });
-        }
+    // add user to book's borrower
+    book.borrower = {
+      _id: user._id,
+      name: user.name,
+      image: user.image,
     }
 
-    static async getBookById(req, res) {
-        const id = req.params.id;
+    await Book.findByIdAndUpdate(book._id, book)
 
-        if (!ObjectId.isValid(id)) {
-            return res.status(422).json({ message: "ID inválido." });
-        }
+    res.status(200).json({
+      message: `The visit has been successfully scheduled, please contact ${book.user.name} on the phone: ${book.user.phone}`,
+    })
+  }
 
-        try {
-            const book = await Book.findById(id);
-            if (!book) {
-                return res.status(404).json({ message: "Livro não encontrado." });
-            }
-            res.status(200).json({ book });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Erro no servidor." });
-        }
-    }
+  // conclude book adoption (borrowed)
+  static async concludeBorrow(req, res) {
+    const id = req.params.id
 
-    static async removeBook(req, res) {
-        const id = req.params.id;
+    // check if book exists
+    const book = await Book.findOne({ _id: id })
 
-        if (!ObjectId.isValid(id)) {
-            return res.status(422).json({ message: "ID inválido." });
-        }
+    book.available = false
 
-        try {
-            const book = await Book.findById(id);
-            if (!book) {
-                return res.status(404).json({ message: "Livro não encontrado." });
-            }
+    await Book.findByIdAndUpdate(book._id, book)
 
-            const token = getToken(req);
-            const user = await getUserByToken(token);
-
-            if (book.user._id.toString() !== user._id.toString()) {
-                return res.status(403).json({ message: "Você não tem permissão para deletar este livro." });
-            }
-
-            await Book.findByIdAndDelete(id);
-            res.status(200).json({ message: "Livro deletado com sucesso." });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Erro no servidor." });
-        }
-    }
-
-    static async updateBook(req, res) {
-        const id = req.params.id;
-        const {
-            title,
-            author,
-            genre,
-            language,
-            condition,
-            description,
-            quantity,
-            transactionType,
-        } = req.body;
-
-        const images = req.files;
-
-        if (!ObjectId.isValid(id)) {
-            return res.status(422).json({ message: "ID inválido." });
-        }
-
-        try {
-            const book = await Book.findById(id);
-            if (!book) {
-                return res.status(404).json({ message: "Livro não encontrado." });
-            }
-
-            const token = getToken(req);
-            const user = await getUserByToken(token);
-
-            if (book.user._id.toString() !== user._id.toString()) {
-                return res.status(403).json({ message: "Você não tem permissão para atualizar este livro." });
-            }
-
-            const updateData = {
-                title,
-                author,
-                genre,
-                language,
-                condition,
-                description,
-                quantity,
-                transactionType,
-                images: images.map((image) => image.filename),
-            };
-
-            await Book.findByIdAndUpdate(id, updateData);
-            res.status(200).json({ message: "Livro atualizado com sucesso." });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Erro no servidor." });
-        }
-    }
-};
+    res.status(200).json({
+      book: book,
+      message: `Congratulations! The book borrowing has been successfully concluded!`,
+    })
+  }
+}

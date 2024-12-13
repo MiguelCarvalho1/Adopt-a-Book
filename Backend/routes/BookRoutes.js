@@ -5,9 +5,9 @@ const { imageUpload } = require('../helpers/image-upload')
 
 
 
-router.get('/', BookController.getBooks);
+router.get('/', BookController.getAll);
 router.post('/create', verifyToken, imageUpload.array('images'), BookController.create);
-router.get('/mybooks', verifyToken, BookController.getMyBooks);
+router.get('/mybooks', verifyToken, BookController.getAllUserBooks);
 router.get('/:id', BookController.getBookById);
 router.patch(
     '/:id',
@@ -15,8 +15,8 @@ router.patch(
     imageUpload.array('images'),
      BookController.updateBook);
 
-router.delete('/:id', verifyToken, BookController.removeBook);
+router.delete('/:id', verifyToken, BookController.removeBookById);
 
-router.get('/home', BookController.getHomeBooks);
+//router.get('/home', BookController.getHomeBooks);
 
 module.exports = router;
