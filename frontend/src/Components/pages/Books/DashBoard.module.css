@@ -199,3 +199,157 @@
     margin-right: 8px;
   }
   
+
+  .actions {
+    margin-left: auto;
+    display: flex;
+    gap: 1em; /* Espaço entre os botões */
+  }
+  
+  .actions a,
+  .actions button {
+    text-decoration: none;
+    color: #007bff;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .actions a:hover,
+  .actions button:hover {
+    background-color: #007bff;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Botão de "Edit" */
+  .actions .edit-btn {
+    color: #ffc107;
+    border-color: #ffc107;
+  }
+  
+  .actions .edit-btn:hover {
+    background-color: #ffc107;
+    color: #fff;
+  }
+  
+  /* Botão de "Delete" */
+  .actions .delete-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .actions .delete-btn:hover {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  /* Ícones */
+  .actions a svg,
+  .actions button svg {
+    font-size: 16px;
+    margin-right: 4px;
+  }
+
+  /* Estilos para exibição em cards */
+.bookslist_container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 cards por linha */
+  gap: 1.5em; /* Espaçamento entre os cards */
+  padding: 20px;
+}
+
+/* Card individual */
+.book_card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.book_card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Imagem no card */
+.book_card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+/* Título do livro */
+.book_card h3 {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Botões no card */
+.book_card .actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.book_card .actions button,
+.book_card .actions a {
+  font-size: 0.9em;
+  padding: 0.6em 1em;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.book_card .actions button:hover,
+.book_card .actions a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+/* Estilo para o botão de Detalhes */
+.details_btn {
+  text-decoration: none;
+  color: #007bff;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.details_btn:hover {
+  background-color: #007bff;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

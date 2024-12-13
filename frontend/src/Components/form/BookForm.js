@@ -138,13 +138,13 @@ function BookForm({ handleSubmit, bookData, btnText }) {
       />
 
       {/* Seletor de tipo de transação (vender, doar, trocar) */}
-      <Select
+     /* <Select
         text="Transaction Type"
         name="transactionType"
         options={transactionTypes}
         handleOnChange={handleSelectChange}
         value={book.transactionType || ""}
-      />
+      />*/
 
       {/* Botão para submeter o formulário */}
       <Input type="submit" value={btnText} />

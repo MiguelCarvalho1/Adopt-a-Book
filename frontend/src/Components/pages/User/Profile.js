@@ -76,7 +76,7 @@ function Profile() {
             src={
               preview
                 ? URL.createObjectURL(preview)
-                : `${process.env.REACT_APP_API}/images/users/${user.image}`
+                : `${process.env.REACT_APP_API}/images/users/${user.images[0]}`
             }
             alt={user.name}
           />
