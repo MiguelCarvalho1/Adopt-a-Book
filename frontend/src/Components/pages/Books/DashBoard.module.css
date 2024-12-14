@@ -1,267 +1,4 @@
-/* Header */
-.petslist_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2.5em;
-    padding: 0 20px;
-  }
-  
-  .petslist_header h1 {
-    margin: 0;
-    font-size: 2em;
-    color: #16479d;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  
-  .petslist_header a {
-    text-decoration: none;
-    background-color: #16479d;
-    color: #fff;
-    font-weight: bold;
-    padding: 0.8em 1.2em;
-    border-radius: 30px;
-    border: 2px solid #16479d;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    font-size: 1.1em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .petslist_header a:hover {
-    background-color: transparent;
-    color: #16479d;
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Container de lista de pets */
-  .petslist_container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5em;
-    padding: 0 20px;
-  }
-  
-  /* Linha individual de pet */
-  .petlist_row {
-    border-bottom: 1px solid #16479d;
-    padding: 1.5em;
-    margin: 1em 0;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    transition: background-color 0.3s ease-in-out;
-    border-radius: 10px;
-  }
-  
-  .petlist_row:hover {
-    background-color: #f7f7f7;
-  }
-  
-  /* Imagem do pet */
-  .petlist_row img {
-    width: 70px;
-    height: 70px;
-    margin-right: 1.5em;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-  
-  /* Nome do pet */
-  .petlist_row span {
-    min-width: 100px;
-    font-size: 1.1em;
-    color: #555;
-  }
-  
-  /* Ações de edição e exclusão */
-  .actions {
-    margin-left: auto;
-  }
-  
-  .actions a,
-  .actions button {
-    text-decoration: none;
-    color: #16479d;
-    border: 2px solid #16479d;
-    border-radius: 50px;
-    padding: 10px 18px;
-    background-color: #fff;
-    margin-left: 1.2em;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-  }
-  
-  .actions a:hover,
-  .actions button:hover {
-    background-color: #16479d;
-    color: #fff;
-    transform: translateY(-2px);
-  }
-  
-  /* Botão de concluir adoção */
-  .actions .conclude_btn {
-    color: #25b456;
-    border-color: #25b456;
-  }
-  
-  .actions .conclude_btn:hover {
-    color: #fff;
-    background-color: #25b456;
-    transform: translateY(-2px);
-  }
-  
-  /* Estilo para pets adotados */
-  .petlist_row.adopted {
-    background-color: #e0f7e0; /* Cor suave para pets já adotados */
-    color: #8c8c8c; /* Texto mais claro */
-  }
-  
-  .petlist_row.adopted:hover {
-    background-color: #d1f2d1; /* Cor um pouco mais clara no hover */
-  }
-  
-  .petlist_row.adopted .actions button,
-  .petlist_row.adopted .actions a {
-    cursor: not-allowed; /* Desabilita ações em pets adotados */
-    opacity: 0.5; /* Reduz a opacidade para indicar que o botão não é interativo */
-  }
-  
-  .petlist_row .adopted-label {
-    background-color: #25b456; /* Verde para indicar adoção */
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
-    margin-left: 1em;
-    display: inline-block;
-  }
-  
-  /* Botões desabilitados para pets adotados */
-  .actions .adopted-btn {
-    color: #25b456;
-    border-color: #25b456;
-    background-color: #fff;
-  }
-  
-  .actions .adopted-btn:hover {
-    background-color: #25b456;
-    color: #fff;
-    transform: translateY(-2px);
-  }
-  
-  /* Contatos */
-  .contacts {
-    margin-left: 2.5em;
-  }
-  
-  .contacts p {
-    margin-bottom: 1em;
-    font-size: 1.1em;
-    color: #555;
-  }
-  
-  /* Botão moderno */
-  .modern_button {
-    text-decoration: none;
-    background-color: #007bff;
-    color: #fff;
-    font-weight: bold;
-    padding: 0.8em 1.5em;
-    border-radius: 25px;
-    border: none;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .modern_button:hover {
-    background-color: #0056b3;
-    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-4px);
-  }
-  
-  .modern_button svg {
-    margin-right: 8px;
-  }
-  
-
-  .actions {
-    margin-left: auto;
-    display: flex;
-    gap: 1em; /* Espaço entre os botões */
-  }
-  
-  .actions a,
-  .actions button {
-    text-decoration: none;
-    color: #007bff;
-    border: 2px solid #007bff;
-    border-radius: 8px;
-    padding: 0.6em 1.2em;
-    background-color: #fff;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5em;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .actions a:hover,
-  .actions button:hover {
-    background-color: #007bff;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Botão de "Edit" */
-  .actions .edit-btn {
-    color: #ffc107;
-    border-color: #ffc107;
-  }
-  
-  .actions .edit-btn:hover {
-    background-color: #ffc107;
-    color: #fff;
-  }
-  
-  /* Botão de "Delete" */
-  .actions .delete-btn {
-    color: #dc3545;
-    border-color: #dc3545;
-  }
-  
-  .actions .delete-btn:hover {
-    background-color: #dc3545;
-    color: #fff;
-  }
-  
-  /* Ícones */
-  .actions a svg,
-  .actions button svg {
-    font-size: 16px;
-    margin-right: 4px;
-  }
-
-  /* Estilos para exibição em cards */
+/* Estilos para exibição em cards */
 .bookslist_container {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 3 cards por linha */
@@ -283,6 +20,7 @@
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
+/* Apenas interatividade para os cards de livros */
 .book_card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -329,6 +67,7 @@
   background-color: #007bff;
   color: #fff;
 }
+
 /* Estilo para o botão de Detalhes */
 .details_btn {
   text-decoration: none;
@@ -352,4 +91,246 @@
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Outros elementos (como botões de header ou fora dos cards) sem interação */
+.bokklist_header a,
+.bokklist_header button,
+.bokklist_header span {
+  transition: none; /* Desativa a transição para elementos fora dos cards */
+  cursor: default; /* Desativa o cursor de clique */
+}
+
+/* Definindo o estilo dos botões e links fora do card */
+.bokklist_header a {
+  text-decoration: none;
+  background-color: #16479d;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.8em 1.2em;
+  border-radius: 30px;
+  border: 2px solid #16479d;
+  cursor: default; /* Não é clicável */
+  transition: none; /* Não há transição de hover */
+}
+
+.bokklist_header a:hover {
+  background-color: transparent;
+  color: #16479d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Remover efeitos de hover nos botões fora dos cards */
+.actions a,
+.actions button {
+  cursor: default; /* Não permitir clique fora dos cards */
+  opacity: 1;
+}
+
+/* Header */
+.bokklist_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5em;
+  padding: 0 20px;
+}
+
+.bokklist_header h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #16479d;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.bokklist_header a {
+  text-decoration: none;
+  background-color: #16479d;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.8em 1.2em;
+  border-radius: 30px;
+  border: 2px solid #16479d;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bokklist_header a:hover {
+  background-color: transparent;
+  color: #16479d;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Container de lista de pets */
+.bokklist_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  padding: 0 20px;
+}
+
+/* Linha individual de pet */
+.petlist_row {
+  border-bottom: 1px solid #16479d;
+  padding: 1.5em;
+  margin: 1em 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  transition: background-color 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+.petlist_row:hover {
+  background-color: #f7f7f7;
+}
+
+/* Imagem do pet */
+.petlist_row img {
+  width: 70px;
+  height: 70px;
+  margin-right: 1.5em;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Nome do pet */
+.petlist_row span {
+  min-width: 100px;
+  font-size: 1.1em;
+  color: #555;
+}
+
+/* Ações de edição e exclusão */
+.actions {
+  margin-left: auto;
+}
+
+.actions a,
+.actions button {
+  text-decoration: none;
+  color: #16479d;
+  border: 2px solid #16479d;
+  border-radius: 50px;
+  padding: 10px 18px;
+  background-color: #fff;
+  margin-left: 1.2em;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.actions a:hover,
+.actions button:hover {
+  background-color: #16479d;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Botão de concluir adoção */
+.actions .conclude_btn {
+  color: #25b456;
+  border-color: #25b456;
+}
+
+.actions .conclude_btn:hover {
+  color: #fff;
+  background-color: #25b456;
+  transform: translateY(-2px);
+}
+
+/* Estilo para pets adotados */
+.petlist_row.adopted {
+  background-color: #e0f7e0; /* Cor suave para pets já adotados */
+  color: #8c8c8c; /* Texto mais claro */
+}
+
+.petlist_row.adopted:hover {
+  background-color: #d1f2d1; /* Cor um pouco mais clara no hover */
+}
+
+.petlist_row.adopted .actions button,
+.petlist_row.adopted .actions a {
+  cursor: not-allowed; /* Desabilita ações em pets adotados */
+  opacity: 0.5; /* Reduz a opacidade para indicar que o botão não é interativo */
+}
+
+.petlist_row .adopted-label {
+  background-color: #25b456; /* Verde para indicar adoção */
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-left: 1em;
+  display: inline-block;
+}
+
+/* Botões desabilitados para pets adotados */
+.actions .adopted-btn {
+  color: #25b456;
+  border-color: #25b456;
+  background-color: #fff;
+}
+
+.actions .adopted-btn:hover {
+  background-color: #25b456;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Contatos */
+.contacts {
+  margin-left: 2.5em;
+}
+
+.contacts p {
+  margin-bottom: 1em;
+  font-size: 1.1em;
+  color: #555;
+}
+
+/* Botão moderno */
+.modern_button {
+  text-decoration: none;
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.8em 1.5em;
+  border-radius: 25px;
+  border: none;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.modern_button:hover {
+  background-color: #0056b3;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+}
+
+.modern_button svg {
+  margin-right: 8px;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
 }

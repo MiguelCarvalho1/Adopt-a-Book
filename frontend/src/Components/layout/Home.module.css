@@ -1,130 +1,127 @@
-/* Estrutura geral */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #f9f9f9, #e6e6e6);
-  color: #333;
-}
-
-/* Cabeçalho */
-header {
-  background-color: #1e407c;
-  color: white;
-  padding: 20px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: background-color 0.3s;
-}
-
-header:hover {
-  background-color: #142c5a;
+/* Estilo geral */
+.home {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  padding: 1em 2em;
 }
 
 /* Hero Section */
 .hero {
-  text-align: center;
-  background: linear-gradient(135deg, #eef5ff, #d0e2ff);
-  padding: 50px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  color: #1e407c;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  color: #555;
-}
-
-.hero button {
-  background: linear-gradient(135deg, #ff6f61, #ff3e2f);
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
-}
-
-.hero button:hover {
-  background: linear-gradient(135deg, #ff5733, #e63c22);
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Destaques de Categorias */
-.categories {
   display: flex;
-  justify-content: space-around;
-  margin: 50px auto;
-  flex-wrap: wrap;
-  gap: 20px;
-  max-width: 1200px;
-  padding: 0 20px;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #eef3f9;
+  padding: 2em;
+  border-radius: 10px;
+  margin-bottom: 2em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.category {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  width: 300px;
-  text-align: center;
-  padding: 20px;
-  transition: box-shadow 0.3s, transform 0.3s;
-  overflow: hidden;
+.hero_content {
+  max-width: 50%;
 }
 
-.category:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-5px);
+.hero_content h1 {
+  font-size: 2.5rem;
+  color: #16479d;
+  margin-bottom: 1rem;
 }
 
-.category img {
-  max-width: 100%;
+.hero_content p {
+  font-size: 1.2rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.hero_image img {
+  max-width: 400px;
   border-radius: 8px;
-  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.category img:hover {
-  transform: scale(1.1);
+/* Categorias */
+.categories {
+  margin-top: 2em;
+}
+
+.categories h2 {
+  font-size: 2rem;
+  margin-bottom: 1em;
+  color: #16479d;
+}
+
+/* Estilo de cada categoria */
+.category {
+  margin-bottom: 2em;
 }
 
 .category h3 {
-  color: #1e407c;
-  font-size: 1.2rem;
-  margin: 10px 0;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 1em;
 }
 
-.category p {
+/* Grade de livros */
+.books {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+}
+
+.book_card {
+  background: #fff;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 240px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book_card img {
+  max-width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.8em;
+}
+
+.book_card h4 {
+  font-size: 1.2rem;
+  color: #16479d;
+  margin-bottom: 0.5em;
+}
+
+.book_card p {
   font-size: 0.9rem;
   color: #666;
+  line-height: 1.4;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .hero h1 {
-      font-size: 2rem;
-  }
+.book_card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.details_btn {
+  text-decoration: none;
+  color: #007bff;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .hero p {
-      font-size: 1rem;
-  }
-
-  .categories {
-      flex-direction: column;
-      gap: 20px;
-  }
-
-  .category {
-      width: 90%;
-      margin: 0 auto;
-  }
+.details_btn:hover {
+  background-color: #007bff;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

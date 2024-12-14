@@ -20,6 +20,11 @@ import Navbar from './Components/layout/Navbar';
 import Container from './Components/layout/Container';
 import Message from './Components/layout/Message';
 
+/*transaction*/ 
+import ReceivedTransactionsPage from './Components/pages/Transaction/ReceivedTransactionsPage';
+import SentTransactionsPage from './Components/pages/Transaction/SentTransactionsPage';
+import { TransactionProvider} from './context/TransactionContext';
+
 /*context*/ 
 import { UserProvider } from './context/UserContext';
 
@@ -27,6 +32,7 @@ import { UserProvider } from './context/UserContext';
 function App() {
   return (
     <Router>
+      <TransactionProvider>
       <UserProvider>
       <Navbar />
       <Message/>
@@ -37,14 +43,17 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/books/home" element={<BooksHome />} />
         <Route path="/user/profile" element={<Profile />} />
+        <Route path="/books/mybooks" element={<MyBooks />} />
         <Route path="/books/details/:id" element={<BooksDetails />} />
         <Route path="/books/create" element={<BooksCreate />} />
         <Route path="/books/edit/:id" element={<BooksEdit />} />
-        <Route path="/books/mybooks" element={<MyBooks />} />
+        <Route path="/transactions/received" element={<ReceivedTransactionsPage />} />
+        <Route path="/transactions/sent" element={<SentTransactionsPage />} />
       </Routes>
       </Container>
       <Footer />
       </UserProvider>
+      </TransactionProvider>
     </Router>
   );
 }

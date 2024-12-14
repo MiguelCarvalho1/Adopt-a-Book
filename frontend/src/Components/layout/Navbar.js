@@ -1,12 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
+import styles from './Navbar.module.css';
 
-import styles from './Navbar.module.css'
-
-import Logo from '../../assets/img/logo.png'
+import Logo from '../../assets/img/logo.png';
 
 /* contexts */
-import { Context } from '../../context/UserContext'
+import { Context } from '../../context/UserContext';
 import { useContext } from 'react';
 
 /* hooks */
@@ -32,13 +31,21 @@ function Navbar() {
         </li>
         {authenticated ? (
           <>
-          <li>
+            <li>
               <Link to="/books/mybooks">My Books</Link>
+            </li>
+            <li>
+              <Link to="/transactions/received">Requests Received</Link>
+            </li>
+            <li>
+              <Link to="/transactions/sent">Requests Sent</Link>
             </li>
             <li>
               <Link to="/user/profile">Profile</Link>
             </li>
-            <li onClick={logout}>Logout</li>
+            <li onClick={logout} className={styles.logout_button}>
+              Logout
+            </li>
           </>
         ) : (
           <>

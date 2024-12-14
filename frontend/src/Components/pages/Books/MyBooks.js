@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../../utils/api';
 import { Link } from "react-router-dom";
-import RoundedImage from '../../layout/RoundImage';
 import useFlashMessage from "../../../hooks/useFlashMessage";
 import styles from './Dashboard.module.css';
 
@@ -131,7 +130,7 @@ function MyBooks() {
                 ) : (
                   <p>Book already processed</p>
                 )}
-                 <Link to={`/books/details/${book._id}`} className={styles.details_btn}></Link>
+                 <Link to={`/books/details/${book._id}`} className={styles.details_btn}>Details</Link>
               </div>
               
             </div>

@@ -1,0 +1,125 @@
+
+/* Estrutura da página */
+.page_container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Título da página */
+  .page_container h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #16479d;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  
+  .page_container h1:hover {
+    color: #25b456;
+    transform: scale(1.05);
+  }
+  
+  /* Tabela */
+  .table_container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  thead tr {
+    background-color: #16479d;
+    color: white;
+  }
+  
+  th, td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  /* Botões */
+  .button-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  button:hover {
+    transform: translateY(-3px);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  /* Botões específicos */
+  button.accept {
+    background-color: #25b456;
+    color: white;
+  }
+  
+  button.accept:hover {
+    background-color: #1e9a45;
+  }
+  
+  button.reject {
+    background-color: #e63946;
+    color: white;
+  }
+  
+  button.reject:hover {
+    background-color: #c32f3b;
+  }
+  
+  /* Status */
+  .status {
+    font-weight: bold;
+    text-transform: capitalize;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .status.pendente {
+    color: #e6a700;
+    background-color: #fff7e6;
+  }
+  
+  .status.aceita {
+    color: #25b456;
+    background-color: #e6f7ec;
+  }
+  
+  .status.concluida {
+    color: #16479d;
+    background-color: #e6ecf7;
+  }
+  
