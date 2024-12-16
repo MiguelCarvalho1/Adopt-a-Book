@@ -6,22 +6,22 @@ const UserBadge = mongoose.model(
     new Schema(
         {
             userId: {
-                type: Schema.Types.ObjectId,
-                ref: "User",
-                required: true,
+              type: Schema.Types.ObjectId,
+              ref: 'User',
+              required: true,
             },
             badgeId: {
-                type: Schema.Types.ObjectId,
-                ref: "Badge",
-                required: true,
+              type: Schema.Types.ObjectId,
+              ref: 'Badge',
+              required: true,
             },
             awardedAt: {
-                type: Date,
-                default: Date.now,
+              type: Date,
+              default: Date.now,
             },
-        },
-        { timestamps: true },
-    ),
+          },
+          { timestamps: true }
+        ),
 );
 
 module.exports = UserBadge;

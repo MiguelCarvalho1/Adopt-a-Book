@@ -6,18 +6,22 @@ const Badge = mongoose.model(
     new Schema(
         {
             name: {
-                type: String,
-                required: true,
+              type: String,
+              required: true,
             },
             description: {
-                type: String,
+              type: String,
             },
             iconUrl: {
-                type: String,
+              type: String,
             },
-        },
-        { timestamps: true },
-    ),
+            pointsRequired: {
+              type: Number, // Definir a quantidade de pontos necessária para o crachá
+              required: true,
+            },
+          },
+          { timestamps: true }
+        ),
 );
 
 module.exports = Badge;

@@ -27,6 +27,18 @@ const User = mongoose.model(
             profileImage: {
                 type: String,
             },
+            sentTransactions: [
+                {
+                  type: Schema.Types.ObjectId,
+                  ref: 'Transaction',
+                },
+              ],
+              receivedTransactions: [
+                {
+                  type: Schema.Types.ObjectId,
+                  ref: 'Transaction',
+                },
+              ],
         },
         { timestamps: true },
     ),

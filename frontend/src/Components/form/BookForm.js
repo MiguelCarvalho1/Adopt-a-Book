@@ -1,6 +1,6 @@
 import styles from "./Form.module.css";
 import Input from "./Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "./Select";
 
 function BookForm({ handleSubmit, bookData, btnText }) {
@@ -38,9 +38,16 @@ function BookForm({ handleSubmit, bookData, btnText }) {
     handleSubmit(book); // Chama a função de envio com os dados do livro
   }
 
+  useEffect(() => {
+    // Se bookData mudar, atualiza o estado do livro
+    if (bookData) {
+      setBook(bookData);
+    }
+  }, [bookData]);
+
   return (
     <form onSubmit={submit} className={styles.form_container}>
-      <div className={styles.preview_book_images}>
+      <div className={styles.book_preview_images}>
         {preview.length > 0
           ? preview.map((image, index) => (
               <img
@@ -137,17 +144,24 @@ function BookForm({ handleSubmit, bookData, btnText }) {
         value={book.quantity || ""}
       />
 
-      {/* Seletor de tipo de transação (vender, doar, trocar) */}
-     /* <Select
+      {/* Seletor de tipo de transação */}
+      <Select
         text="Transaction Type"
         name="transactionType"
         options={transactionTypes}
         handleOnChange={handleSelectChange}
         value={book.transactionType || ""}
-      />*/
+      />
+
+      {/* Campo oculto para status de transação */}
+      <Input
+        type="hidden"
+        name="transactionStatus"
+        value="Pending" // O status inicial é "Pending"
+      />
 
       {/* Botão para submeter o formulário */}
-      <Input type="submit" value={btnText} />
+      <Input type="submit" value={btnText || (bookData ? 'Edit Book' : 'Add Book')} />
     </form>
   );
 }

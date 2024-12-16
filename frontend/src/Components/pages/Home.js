@@ -33,13 +33,15 @@ function Home() {
     return <p className={styles.error_message}>{error}</p>;
   }
 
-  // Organize os livros por gênero
+  // Organize the books by genre and sort genres alphabetically
   const booksByGenre = books.reduce((acc, book) => {
     const genre = book.genre || "Uncategorized";
     if (!acc[genre]) acc[genre] = [];
     acc[genre].push(book);
     return acc;
   }, {});
+
+  const sortedGenres = Object.keys(booksByGenre).sort(); // Sorting genres alphabetically
 
   return (
     <section className={styles.home}>
@@ -57,7 +59,7 @@ function Home() {
       {/* Categorias de Livros */}
       <section className={styles.categories}>
         <h2>Books by Genre</h2>
-        {Object.keys(booksByGenre).map((genre) => (
+        {sortedGenres.map((genre) => (
           <div key={genre} className={styles.category}>
             <h3>{genre}</h3>
             <div className={styles.books}>
@@ -66,13 +68,15 @@ function Home() {
                   <img
                     src={`${process.env.REACT_APP_API}/images/books/${book.images[0]}`}
                     alt={book.title}
+                    className={styles.book_image}
                   />
                   <h4>{book.title}</h4>
                   <p>
                     {book.description
-                      ? book.description.substring(0, 100)
+                      ? book.description.length > 100
+                        ? book.description.substring(0, 100) + "..."
+                        : book.description
                       : "No description available"}
-                    {book.description && book.description.length > 100 && "..."}
                   </p>
                   <Link
                     to={`/books/details/${book._id}`}

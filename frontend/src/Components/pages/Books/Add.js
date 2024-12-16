@@ -26,27 +26,29 @@ function AddBook() {
       }
     });
 
-    // Envio dos dados para a API
-    const data = await api
-      .post(`books/create`, formData, {
+    try {
+      // Envio dos dados para a API
+      const response = await api.post(`books/create`, formData, {
         headers: {
           Authorization: `Bearer ${JSON.parse(token)}`,  // Passando o token para autenticação
           'Content-Type': 'multipart/form-data',  // Tipo de conteúdo para envio de arquivos
         },
-      })
-      .then((response) => {
-        console.log(response.data);  // Log da resposta
-        return response.data;  // Retorna os dados recebidos da resposta
-      })
-      .catch((err) => {
-        console.log(err);  // Log de erros
-        msgType = 'error';  // Se houve erro, o tipo da mensagem será 'error'
-        return err.response.data;  // Retorna o erro
       });
 
-    // Exibe a mensagem de feedback (sucesso ou erro)
-    setFlashMessage(data.message, msgType);
-    navigate('/books/mybooks');  // Redireciona para a página com os livros do usuário após sucesso
+      // Verifica se a resposta da API é bem-sucedida
+      if (response.data && response.data.message) {
+        setFlashMessage(response.data.message, msgType);  // Exibe mensagem de sucesso
+        navigate('/books/mybooks');  // Redireciona para a página com os livros do usuário após sucesso
+      } else {
+        throw new Error('Unexpected response structure');  // Lança erro se a resposta não for o esperado
+      }
+
+    } catch (err) {
+      // Se houver erro, define a mensagem de erro e exibe o feedback
+      msgType = 'error';
+      const errorMessage = err.response?.data?.message || 'An unexpected error occurred';
+      setFlashMessage(errorMessage, msgType);  // Exibe mensagem de erro
+    }
   }
 
   return (

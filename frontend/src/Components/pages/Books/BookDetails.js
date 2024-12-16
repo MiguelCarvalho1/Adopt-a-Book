@@ -1,5 +1,5 @@
-import api from '../../../utils/api';
 import { useState, useEffect } from 'react';
+import api from '../../../utils/api';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import styles from './BookDetails.module.css';
 import useFlashMessage from '../../../hooks/useFlashMessage';
@@ -11,10 +11,10 @@ function BookDetails() {
   const { setFlashMessage } = useFlashMessage();
   const [token] = useState(localStorage.getItem('token') || '');
   const [isRequesting, setIsRequesting] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Navegação entre páginas
 
   useEffect(() => {
-    setLoading(false);
+    setLoading(false); // Inicia o carregamento
     api
       .get(`/books/${id}`)
       .then((response) => {
@@ -32,33 +32,38 @@ function BookDetails() {
   }, [id, setFlashMessage]);
 
   async function requestBook() {
-
     if (!token) {
       setFlashMessage('You need to log in to request a book.', 'error');
       navigate('/login');
       return;
     }
 
-    setIsRequesting(true);
+    setIsRequesting(true);  // Desabilita o botão assim que o usuário clicar
     let msgType = 'success';
 
-    const data = await api
-      .patch(`/books/schedule/${book._id}`, {}, {
+    try {
+      const response = await api.post('/transactions/create', {
+        bookId: book._id,   // ID do livro
+        userId: JSON.parse(token).userId, // ID do usuário que está fazendo a solicitação
+      }, {
         headers: {
           Authorization: `Bearer ${JSON.parse(token)}`,
         },
-      })
-      .then((response) => {
-        return response.data;
-      })
-      .catch((err) => {
-        console.error(err);
-        msgType = 'error';
-        return err.response.data;
       });
 
-    setFlashMessage(data.message, msgType);
-    setIsRequesting(false);
+      // Atualiza o status da transação
+      setFlashMessage(response.data.message, msgType);
+
+      // Redireciona para a página de transações após a solicitação
+      navigate('/transactions/sent'); // Redirecionamento para transações
+
+    } catch (err) {
+      console.error(err);
+      msgType = 'error';
+      setFlashMessage(err.response?.data?.message || 'Failed to request the book.', msgType);
+    } finally {
+      setIsRequesting(false);  // Reabilita o botão após a requisição
+    }
   }
 
   if (loading) {

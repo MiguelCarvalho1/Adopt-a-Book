@@ -6,32 +6,32 @@ const Review = mongoose.model(
     new Schema(
         {
             transactionId: {
-                type: Schema.Types.ObjectId,
-                ref: "Transaction",
-                required: true,
+              type: Schema.Types.ObjectId,
+              ref: 'Transaction',
+              required: true,
             },
             reviewerId: {
-                type: Schema.Types.ObjectId,
-                ref: "User",
-                required: true,
+              type: Schema.Types.ObjectId,
+              ref: 'User',
+              required: true,
             },
             reviewedUserId: {
-                type: Schema.Types.ObjectId,
-                ref: "User",
-                required: true,
+              type: Schema.Types.ObjectId,
+              ref: 'User',
+              required: true,
             },
             rating: {
-                type: Number,
-                required: true,
-                min: 1,
-                max: 5, 
+              type: Number,
+              required: true,
+              min: [1, 'A avaliação mínima é 1'],
+              max: [5, 'A avaliação máxima é 5'],
             },
             comment: {
-                type: String,
+              type: String,
             },
-        },
-        { timestamps: true },
-    ),
+          },
+          { timestamps: true }
+        )
 );
 
 module.exports = Review;
