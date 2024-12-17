@@ -22,7 +22,7 @@ const Transaction = mongoose.model(
         },
         status: {
           type: String,
-          enum: ['Pending', 'Accepted', 'Completed', 'Rejected', 'Cancelled'],
+          enum: ['Pending', 'Accepted', 'Completed', 'Rejected', 'Cancelled','In Progress'],
           default: 'Pending',
         },
         pointsExchanged: {

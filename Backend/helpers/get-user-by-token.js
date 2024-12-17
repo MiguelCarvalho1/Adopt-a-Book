@@ -4,9 +4,9 @@ const User = require ('../models/User');
 
 const getUserByToken = async (token) =>{
 
-    if(!token){
-        return res.status(401).json({message: "Access denied."});
-        }
+    if (!token) {
+        throw new Error("Access denied.");
+    }
 
     const decoded = jwt.verify(token, 'ourSecret');
 

@@ -1,41 +1,69 @@
-import { useEffect, useState } from 'react';
-import { useTransactionContext } from '../../../context/TransactionContext';
-import styles from './Transactions.module.css';
+import React, { useEffect, useState } from 'react';
+import api from '../../../utils/api';
 
-const SentTransactionsPage = () => {
-  const { fetchSentTransactions } = useTransactionContext();
-  const [transactions, setTransactions] = useState([]); 
+const SentTransactions = () => {
+  const [sentTransactions, setSentTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [token] = useState(localStorage.getItem('token') || ''); // Get the token from localStorage
+
+  // Function to fetch sent transactions
+  const fetchSentTransactions = async () => {
+    if (!token) {
+      setError('No token found');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await api.get('/transactions/sent', {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(token)}`,  // Use token directly from localStorage
+        },
+      });
+
+      console.log(response.data); // Log the response data to check the structure
+      if (response.data && response.data.transactions) {
+        setSentTransactions(response.data.transactions);  // Set the transactions data to state
+      } else {
+        setError('No transactions data found');
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error(error); // Log the error for better debugging
+      setError('Error fetching sent transactions');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadTransactions = async () => {
-      try {
-        const data = await fetchSentTransactions();
-        setTransactions(data || []); 
-      }catch (error) {
-        console.error('Error fetching transactions:', error);
-      }
-    }
-    loadTransactions();
-  }, [fetchSentTransactions]); 
+    fetchSentTransactions();  // Call the fetch function to get sent transactions
+  }, [token,]);  // Trigger the effect when token changes (or initially)
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className={styles.page_container}>
-      <h1>Sent Transactions</h1>
-      <div className={styles.table_container}>
-        {transactions.length > 0 ? (
-          transactions.map((transaction) => (
-            <div key={transaction._id}>
-              <p><strong>Book:</strong> {transaction.bookId?.title}</p>
-              <p><strong>To:</strong> {transaction.receiverId?.name}</p>
-              <p><strong>Status:</strong> {transaction.status}</p>
-            </div>
-          ))
+    <div>
+      <h2>My Sent Transactions</h2>
+      <div>
+        {sentTransactions.length > 0 ? (
+          <ul>
+            {sentTransactions.map((transaction) => (
+              <li key={transaction._id}>
+                <h3>Book: {transaction.bookId.title}</h3>
+                <p>Status: {transaction.status}</p>
+                <p>Transaction Type: {transaction.transactionType}</p>
+                <p>Receiver: {transaction.receiverId ? transaction.receiverId.name : 'Awaiting receiver'}</p>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <p>No sent transactions found.</p> // Caso não haja transações
+          <p>No sent transactions found.</p>
         )}
       </div>
     </div>
   );
 };
 
-export default SentTransactionsPage;
+export default SentTransactions;

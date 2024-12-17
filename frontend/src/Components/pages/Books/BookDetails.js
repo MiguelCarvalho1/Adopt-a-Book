@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import styles from './BookDetails.module.css';
 import useFlashMessage from '../../../hooks/useFlashMessage';
 
+
 function BookDetails() {
   const [book, setBook] = useState({});
   const [loading, setLoading] = useState(true);
@@ -37,34 +38,42 @@ function BookDetails() {
       navigate('/login');
       return;
     }
-
-    setIsRequesting(true);  // Desabilita o botão assim que o usuário clicar
+  
+    setIsRequesting(true);
     let msgType = 'success';
-
+  
     try {
-      const response = await api.post('/transactions/create', {
-        bookId: book._id,   // ID do livro
-        userId: JSON.parse(token).userId, // ID do usuário que está fazendo a solicitação
-      }, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-      });
-
-      // Atualiza o status da transação
+      const requestData = {
+        bookId: book._id,  // ID do livro
+        // Não precisamos passar receiverId, o backend vai pegar do token
+      };
+  
+      const response = await api.post(
+        '/transactions/start',
+        requestData,  // Dados da transação
+        {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(token)}`,  // Envio do token para autenticação
+          },
+        }
+      );
+  
       setFlashMessage(response.data.message, msgType);
-
-      // Redireciona para a página de transações após a solicitação
-      navigate('/transactions/sent'); // Redirecionamento para transações
-
+      navigate('/transactions/sent');  // Redireciona para a página de transações enviadas
     } catch (err) {
-      console.error(err);
+      console.error('Request error:', err.response ? err.response.data : err.message);
       msgType = 'error';
-      setFlashMessage(err.response?.data?.message || 'Failed to request the book.', msgType);
+      setFlashMessage(err?.response?.data?.message || 'Failed to request the book.', msgType);
     } finally {
-      setIsRequesting(false);  // Reabilita o botão após a requisição
+      setIsRequesting(false);
     }
   }
+  
+  
+  
+  
+  
+  
 
   if (loading) {
     return <p>Loading book details...</p>;
@@ -78,7 +87,7 @@ function BookDetails() {
             <h1>{book.title}</h1>
             {book.subtitle && <p>{book.subtitle}</p>}
           </div>
-          <div className={styles.book_info_section}>
+          <div className={styles.book_info_section}> 
             <div className={styles.book_images}>
               {book.images?.length > 0 ? (
                 book.images.map((image, index) => (
