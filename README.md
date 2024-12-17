@@ -103,7 +103,7 @@
   │   ├── /routes                # API route definitions
   │   ├── /middleware            # Custom middleware for auth, validation, etc.
   │   ├── /utils                 # Utility functions
-  │   └── server.js              # Main server setup (Express app)
+  │   └── index.js              # Main server setup (Express app)
   │
   ├── /frontend
   │   ├── /public                # Public files like index.html, favicon, etc.
