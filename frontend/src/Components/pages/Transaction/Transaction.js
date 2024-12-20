@@ -1,49 +1,79 @@
 import React, { useEffect, useState } from 'react';
-import api from '../../../utils/api'; // Import the api instance
+import api from '../../../utils/api';
+import styles from './Transactions.module.css';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const fetchTransactions = async () => {
-    try {
-      const response = await api.get('/transactions'); // Use the API instance
-      setTransactions(response.data.transactions);
-      setLoading(false);
-    } catch (error) {
-      setError('Error fetching transactions');
-      setLoading(false);
-    }
-  };
+  const [token] = useState(localStorage.getItem('token') || ''); // Token direto do localStorage
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    setLoading(true);
+    setError(null);
+
+    if (!token) {
+      setError('No token found');
+      setLoading(false);
+      return;
+    }
+
+    api
+      .get('/transactions/mytransaction', {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        },
+      })
+      .then((response) => {
+        setTransactions(response.data.transactions || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching transactions:', err);
+        setError('Failed to load transactions. Please try again later.');
+        setLoading(false);
+      });
+  }, [token]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
+    <div className={styles.page_container}>
       <h2>My Transactions</h2>
-      <div>
-        {transactions.length > 0 ? (
-          <ul>
-            {transactions.map((transaction) => (
-              <li key={transaction._id}>
-                <h3>Book: {transaction.bookId.title}</h3>
-                <p>Status: {transaction.status}</p>
-                <p>Transaction Type: {transaction.transactionType}</p>
-                <p>Sender: {transaction.senderId.name}</p>
-                <p>Receiver: {transaction.receiverId ? transaction.receiverId.name : 'Awaiting receiver'}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No transactions found.</p>
-        )}
-      </div>
+      {transactions.length > 0 ? (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Status</th>
+              <th>Type</th>
+              <th>Receiver</th>
+              <th>Sender</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((transaction) => {
+              // Determinar a classe de status dentro do mapeamento de transações
+              const statusClass = styles[transaction.status.toLowerCase()] || styles.inprogress;
+
+              return (
+                <tr key={transaction._id}>
+                  <td>{transaction.bookId?.title || 'Unknown'}</td>
+                  <td className={`${styles.status} ${statusClass}`}>
+                    {transaction.status}
+                  </td>
+                  <td>{transaction.bookId?.transactionType || 'Unknown'}</td>
+                  <td>{transaction.senderId?.name || 'Unknown'}</td>
+                  <td>{transaction.receiverId?.name || ''}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <p>No transactions found.</p>
+      )}
     </div>
   );
 };

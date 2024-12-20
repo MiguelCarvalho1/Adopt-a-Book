@@ -24,6 +24,7 @@ import Message from './Components/layout/Message';
 import ReceivedTransactionsPage from './Components/pages/Transaction/ReceivedTransactionsPage';
 import SentTransactionsPage from './Components/pages/Transaction/SentTransactionsPage';
 import { TransactionProvider} from './context/TransactionContext';
+import Transaction from './Components/pages/Transaction/Transaction';
 
 /*context*/ 
 import { UserProvider } from './context/UserContext';
@@ -49,6 +50,7 @@ function App() {
         <Route path="/books/edit/:id" element={<BooksEdit />} />
         <Route path="/transactions/received" element={<ReceivedTransactionsPage />} />
         <Route path="/transactions/sent" element={<SentTransactionsPage />} />
+        <Route path="/transactions/mytransaction" element={<Transaction />} />
       </Routes>
       </Container>
       <Footer />

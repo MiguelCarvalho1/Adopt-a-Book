@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../../../utils/api';
-import { Link } from "react-router-dom";
-import useFlashMessage from "../../../hooks/useFlashMessage";
-import styles from './Dashboard.module.css'; // Certifique-se de que o caminho esteja correto
-import { FaEdit, FaTrash, FaEye } from 'react-icons/fa'; 
+import { Link } from 'react-router-dom';
+import useFlashMessage from '../../../hooks/useFlashMessage';
+import styles from './Dashboard.module.css';
+import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 
 function MyBooks() {
   const [books, setBooks] = useState([]);
@@ -11,8 +11,6 @@ function MyBooks() {
   const [token] = useState(localStorage.getItem('token') || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
- 
 
   useEffect(() => {
     setLoading(true);
@@ -59,53 +57,13 @@ function MyBooks() {
     }
   }
 
-  async function startTransaction(id) {
-    let msgType = 'success';
-
-    const data = await api
-      .patch(`/books/startTransaction/${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-      })
-      .then((response) => response.data)
-      .catch((err) => {
-        console.error(err);
-        msgType = 'error';
-        return err.response.data;
-      });
-
-    setFlashMessage(data.message, msgType);
-  }
-
-  async function concludeTransaction(id) {
-    let msgType = 'success';
-
-    const data = await api
-      .patch(`/books/concludeTransaction/${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-      })
-      .then((response) => response.data)
-      .catch((err) => {
-        console.error(err);
-        msgType = 'error';
-        return err.response.data;
-      });
-
-    setFlashMessage(data.message, msgType);
-  }
-
- 
-
   if (loading) {
     return <p>Loading your books...</p>;
   }
 
   return (
     <section>
-      <h1>My Books</h1> 
+      <h1>My Books</h1>
       <Link to="/books/create" className={styles.modern_button}>
         Register Book
       </Link>
@@ -119,8 +77,8 @@ function MyBooks() {
               <tr>
                 <th>Book Image</th>
                 <th>Book Title</th>
-                <th>Transaction Type</th>
-                <th>Transaction Status</th>
+                <th>Transaction</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -135,34 +93,32 @@ function MyBooks() {
                   </td>
                   <td>{book.title}</td>
                   <td>{book.transactionType}</td>
-                  <td>{book.transactionStatus ? book.transactionStatus : 'No transactions at the moment'}</td>
+                  <td>
+                    {book.transactionStatus
+                      ? book.transactionStatus
+                      : 'No transactions at the moment'}
+                  </td>
                   <td>
                     <div className={styles.actions}>
-                      {book.transactionStatus === 'Available' && !book.adopter && (
-                        <button onClick={() => startTransaction(book._id)} className={styles.start_btn}>
-                          <FaEdit /> Start Transaction
-                        </button>
-                      )}
-
-                      {(book.transactionStatus === 'Pending' || book.transactionStatus === 'In Progress') && (
-                        <button onClick={() => concludeTransaction(book._id)} className={styles.conclude_btn}>
-                          <FaEdit /> Conclude Transaction
-                        </button>
-                      )}
-
-                      {book.transactionStatus !== 'Completed' && (
-                        <>
-                          <Link to={`/books/edit/${book._id}`} className={styles.edit_btn}>
-                            <FaEdit />
-                          </Link>
-                          <button onClick={() => removeBook(book._id)} className={styles.delete_btn}>
-                            <FaTrash />
-                          </button>
-                        </>
-                      )}
-                      <Link to={`/books/details/${book._id}`} className={styles.details_btn}>
+                      {/* Exibe apenas o estado da transação, sem botões de ação */}
+                      <Link
+                        to={`/books/details/${book._id}`}
+                        className={styles.details_btn}
+                      >
                         <FaEye />
                       </Link>
+                      <Link
+                        to={`/books/edit/${book._id}`}
+                        className={styles.edit_btn}
+                      >
+                        <FaEdit />
+                      </Link>
+                      <button
+                        onClick={() => removeBook(book._id)}
+                        className={styles.delete_btn}
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </td>
                 </tr>

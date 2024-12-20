@@ -129,6 +129,45 @@ class TransactionController {
     }
   }
 
+  static async acceptTransaction(req, res) {
+    const { id } = req.params;
+
+    try {
+        // Passo 1: Encontrar a transação pelo ID
+        const transaction = await Transaction.findById(id).populate('bookId');
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        // Verificar se a transação está no status correto antes de aceitar
+        if (transaction.status !== 'In Progress') {
+            return res.status(400).json({ message: 'Transaction is not pending, cannot accept' });
+        }
+
+        // Passo 2: Verificar se o usuário é o correto (opcional, se necessário)
+        const userId = req.user._id;  // Supomos que o ID do usuário está disponível no token JWT ou sessão
+
+        // Passo 3: Alterar o status da transação para "Accepted"
+        transaction.status = 'Accepted';
+        await transaction.save();
+
+        // Passo 4: Atualizar o dono do livro, caso necessário
+        const book = transaction.bookId;
+        if (book) {
+            book.owner = userId; // Atribuir o livro ao usuário que aceitou
+            await book.save();
+        }
+
+        // Passo 5: Retornar a resposta
+        res.status(200).json({ message: 'Transaction accepted and book owner updated!', transaction });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error accepting transaction and updating book owner', error });
+    }
+}
+
   // Cancelar uma transação (se necessário)
   static async cancelTransaction(req, res) {
     const { bookId } = req.params;
@@ -140,7 +179,7 @@ class TransactionController {
         return res.status(404).json({ message: 'Book not found' });
       }
 
-      const transaction = await Transaction.findOne({ bookId: bookId, status: 'Pending' });
+      const transaction = await Transaction.findOne({ bookId: bookId, status: 'In Progress' });
 
       if (!transaction) {
         return res.status(404).json({ message: 'Pending transaction not found' });
@@ -195,9 +234,21 @@ static async getAllTransactions(req, res) {
 // Get received transactions
 static async getReceivedTransactions(req, res) {
   try {
-    // Filter transactions where the receiverId matches the current user's ID
-    const receivedTransactions = await Transaction.find({ receiverId: req.user._id })
-      .populate('bookId')
+    const token = getToken(req);
+    // Obter usuário logado pelo token
+    const user = await getUserByToken(token);
+
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized access.' });
+    }
+
+    const userId = user._id;
+
+    // Buscar transações onde o userId é sender ou receiver
+    const receivedTransactions = await Transaction.find({
+      $or: [{ senderId: userId }],
+    })
+      .populate('bookId', 'title transactionType')
       .populate('senderId')
       .populate('receiverId')
       .sort('-createdAt');  // Sort by date descending
@@ -216,9 +267,21 @@ static async getReceivedTransactions(req, res) {
 // Get sent transactions
 static async getSentTransactions(req, res) {
   try {
-    // Filter transactions where the senderId matches the current user's ID
-    const sentTransactions = await Transaction.find({ senderId: req.user._id })
-      .populate('bookId')
+    const token = getToken(req);
+    // Obter usuário logado pelo token
+    const user = await getUserByToken(token);
+
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized access.' });
+    }
+
+    const userId = user._id;
+
+    // Buscar transações onde o userId é sender ou receiver
+    const sentTransactions = await Transaction.find({
+      $or: [ { receiverId: userId }],
+    })
+      .populate('bookId', 'title transactionType')
       .populate('senderId')
       .populate('receiverId')
       .sort('-createdAt');  // Sort by date descending
@@ -292,6 +355,43 @@ static async rejectTransaction(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error rejecting transaction', error });
+  }
+}
+
+
+
+static async getUserTransactions(req, res) {
+  try {
+   
+    const token = getToken(req);
+    // Obter usuário logado pelo token
+    const user = await getUserByToken(token);
+
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized access.' });
+    }
+
+    const userId = user._id;
+
+    // Buscar transações onde o userId é sender ou receiver
+    const transactions = await Transaction.find({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    })
+      .populate('bookId', 'title transactionType') // Inclui o título e o tipo do livro
+      .populate('senderId', 'name') // Inclui o nome do sender
+      .populate('receiverId', 'name') // Inclui o nome do receiver
+      .sort('-createdAt') // Ordenar por data de criação
+      .exec();
+
+    if (transactions.length === 0) {
+      return res.status(404).json({ message: 'No transactions found for this user.' });
+    }
+
+    // Retorna as transações encontradas
+    res.status(200).json({ transactions });
+  } catch (err) {
+    console.error('Error fetching user transactions:', err);
+    res.status(500).json({ message: 'Failed to fetch transactions.' });
   }
 }
 

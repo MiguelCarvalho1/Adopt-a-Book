@@ -93,15 +93,37 @@ static async create(req, res) {
 
   // get all user books
   static async getAllUserBooks(req, res) {
-    const token = getToken(req);
-    const user = await getUserByToken(token);
+    try {
+        const token = getToken(req);
+        const user = await getUserByToken(token);
 
-    const books = await Book.find({ 'user': user._id });  // Referência direta ao ObjectId do usuário
+        // Busca os livros do usuário e popula as transações relacionadas
+        const books = await Book.find({ user: user._id })
+            .populate({
+                path: 'transactions', // Nome do campo no schema do Book
+                select: 'status', // Opcional: seleciona apenas o campo 'status' da transação
+            })
+            .exec();
 
-    res.status(200).json({
-      books,
-    });
-  }
+        // Adiciona o status da transação diretamente ao JSON de retorno
+        const booksWithTransactionStatus = books.map((book) => ({
+            ...book.toObject(),
+            transactionStatus: book.transactions.length
+                ? book.transactions[0].status // Exibe o status da primeira transação (ou ajuste conforme necessário)
+                : null, // Caso não haja transações
+        }));
+
+        res.status(200).json({
+            books: booksWithTransactionStatus,
+        });
+    } catch (error) {
+        console.error('Error fetching user books:', error);
+        res.status(500).json({
+            message: 'An error occurred while fetching user books.',
+        });
+    }
+}
+
 
   // get all user borrowed books
   static async getAllUserBorrowedBooks(req, res) {

@@ -35,6 +35,9 @@ function Navbar() {
               <Link to="/books/mybooks">My Books</Link>
             </li>
             <li>
+              <Link to="/transactions/mytransaction">List of Transactions</Link>
+            </li>
+            <li>
               <Link to="/transactions/received">Requests Received</Link>
             </li>
             <li>

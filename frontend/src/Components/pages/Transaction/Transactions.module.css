@@ -1,104 +1,54 @@
-
-/* Estrutura da página */
 .page_container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    font-family: 'Arial', sans-serif;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Título da página */
-  .page_container h1 {
-    text-align: center;
-    font-size: 2.5rem;
-    color: #16479d;
-    margin-bottom: 1.5rem;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
-  
-  .page_container h1:hover {
-    color: #25b456;
-    transform: scale(1.05);
-  }
-  
-  /* Tabela */
-  .table_container {
-    overflow-x: auto;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
-    font-size: 1rem;
-    background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  thead tr {
-    background-color: #16479d;
-    color: white;
-  }
-  
-  th, td {
-    text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  /* Botões */
-  .button-group {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  
-  button:hover {
-    transform: translateY(-3px);
-  }
-  
-  button:active {
-    transform: translateY(0);
-  }
-  
-  /* Botões específicos */
-  button.accept {
-    background-color: #25b456;
-    color: white;
-  }
-  
-  button.accept:hover {
-    background-color: #1e9a45;
-  }
-  
-  button.reject {
-    background-color: #e63946;
-    color: white;
-  }
-  
-  button.reject:hover {
-    background-color: #c32f3b;
-  }
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: #007bff;
+  color: white;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tbody tr:hover {
+  background-color: #ddd;
+  transition: background-color 0.3s ease;
+}
+
+p {
+  text-align: center;
+  color: #555;
+  margin-top: 20px;
+}
+
   
   /* Status */
   .status {
@@ -108,18 +58,58 @@
     border-radius: 4px;
   }
   
-  .status.pendente {
-    color: #e6a700;
+  .pending {
+    color: #f5b70d;
     background-color: #fff7e6;
   }
   
-  .status.aceita {
+  .accepted {
     color: #25b456;
     background-color: #e6f7ec;
   }
   
-  .status.concluida {
+  .completed {
     color: #16479d;
     background-color: #e6ecf7;
   }
   
+  .inprogress {
+    color: #6a5701;
+    background-color: #fff9e6;
+  }
+
+  /* Estilos para os botões de aceitação e rejeição com ícones */
+.acceptButton,
+.rejectButton {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.acceptButton {
+  background-color: #4CAF50;
+}
+
+.acceptButton:hover {
+  background-color: #45a049;
+}
+
+.rejectButton {
+  background-color: #f44336;
+}
+
+.rejectButton:hover {
+  background-color: #d32f2f;
+}
+
+.acceptButton i,
+.rejectButton i {
+  margin-right: 8px; /* Espaço entre o ícone e o texto */
+}
