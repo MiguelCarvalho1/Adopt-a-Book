@@ -93,22 +93,75 @@ class TransactionController {
   }
   
 
-  // Concluir a transação (após as etapas de troca, venda ou doação)
-  static async completeTransaction(req, res) {
-    const { bookId } = req.params;
+  
+  static async acceptTransaction(req, res) {
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    const { bookId } = req.body;  // Recebe o bookId no corpo da requisição
+  
+    try {
+      console.log('User attempting to accept transaction:', user);
+      console.log('Book ID received:', bookId);
+  
+      // Procurar pelo livro com o bookId fornecido
+      const book = await Book.findById(bookId);
+      if (!book) {
+        console.log('Book not found.');
+        return res.status(404).json({ message: 'Book not found' });
+      }
+  
+      console.log('Book found:', book); // Verifica se o livro foi encontrado
+  
+      // Procurar pela transação que está associada ao livro
+      const transaction = await Transaction.findOne({ bookId: bookId }).populate('bookId');
+      if (!transaction) {
+        console.log('Transaction not found for this book.');
+        return res.status(404).json({ message: 'Transaction not found' });
+      }
+  
+      console.log('Transaction found:', transaction);
+  
+      // Verifica se a transação está em andamento
+      if (transaction.status !== 'In Progress') {
+        console.log('Transaction is not pending.');
+        return res.status(400).json({ message: 'Transaction is not pending, cannot accept' });
+      }
+  
+      // Atualiza o status da transação para "Accepted"
+      transaction.status = 'Accepted';
+      await transaction.save();
+  
+      // Atualiza o dono do livro para o usuário logado
+      book.owner = user._id;
+      await book.save();
+  
+      res.status(200).json({
+        message: 'Transaction accepted and book owner updated!',
+        transaction,
+        bookId: book._id, // Retorna o ID do livro
+      });
+    } catch (error) {
+      console.error('Error during transaction acceptance:', error);
+      res.status(500).json({ message: 'Error accepting transaction', error });
+    }
+  }
 
+  // Completar a transação e atualizar o status do livro automaticamente
+  static async completeTransaction(req, res) {
+    const { bookId, receiverId } = req.body;
+    
     try {
       const book = await Book.findById(bookId);
-
+  
       if (!book) {
         return res.status(404).json({ message: 'Book not found' });
       }
 
-      // Verificar se a transação está em andamento
-      const transaction = await Transaction.findOne({ bookId: bookId, status: 'In Progress' });
+      // Verificar se a transação foi aceita e não está completa
+      const transaction = await Transaction.findOne({ bookId: bookId, status: 'Accepted' });
 
       if (!transaction) {
-        return res.status(404).json({ message: 'Transaction not in progress' });
+        return res.status(404).json({ message: 'Transaction not in accepted status' });
       }
 
       // Marcar a transação como "Completed"
@@ -117,87 +170,81 @@ class TransactionController {
 
       // Atualizar o livro (marcar como não disponível)
       book.available = false; // O livro não estará mais disponível para transações
+      book.owner = receiverId; // Alterar o dono do livro para o receptor da transação
       await book.save();
 
       res.status(200).json({
-        message: 'Transaction completed successfully!',
+        message: 'Transaction completed and book ownership updated successfully!',
         transaction,
+        book,
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error completing transaction:', error);
       res.status(500).json({ message: 'Error completing transaction', error });
     }
   }
+  
+  
 
-  static async acceptTransaction(req, res) {
-    const { id } = req.params;
+  // Cancelar uma transação (se necessário)
+  static async rejectTransaction(req, res) {
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+    const { bookId } = req.body;  // Recebe o bookId no corpo da requisição
 
     try {
-        // Passo 1: Encontrar a transação pelo ID
-        const transaction = await Transaction.findById(id).populate('bookId');
+        console.log('User attempting to reject transaction:', user);
+        console.log('Book ID received:', bookId);
 
+        // Procurar pelo livro com o bookId fornecido
+        const book = await Book.findById(bookId);
+        if (!book) {
+            console.log('Book not found.');
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        console.log('Book found:', book);
+
+        // Procurar pela transação que está associada ao livro
+        const transaction = await Transaction.findOne({ bookId: bookId }).populate('bookId');
         if (!transaction) {
+            console.log('Transaction not found for this book.');
             return res.status(404).json({ message: 'Transaction not found' });
         }
 
-        // Verificar se a transação está no status correto antes de aceitar
+        console.log('Transaction found:', transaction);
+
+        // Verifica se a transação está em andamento
         if (transaction.status !== 'In Progress') {
-            return res.status(400).json({ message: 'Transaction is not pending, cannot accept' });
+            console.log('Transaction is not in progress.');
+            return res.status(400).json({ message: 'Transaction is not in progress, cannot reject' });
         }
 
-        // Passo 2: Verificar se o usuário é o correto (opcional, se necessário)
-        const userId = req.user._id;  // Supomos que o ID do usuário está disponível no token JWT ou sessão
+        // Verifica se o usuário é o receptor ou remetente da transação
+        if (transaction.senderId.toString() !== user._id.toString() && transaction.receiverId.toString() !== user._id.toString()) {
+            console.log('User is not part of this transaction.');
+            return res.status(403).json({ message: 'User is not part of this transaction' });
+        }
 
-        // Passo 3: Alterar o status da transação para "Accepted"
-        transaction.status = 'Accepted';
+        // Atualiza o status da transação para "Rejected"
+        transaction.status = 'Rejected';
         await transaction.save();
 
-        // Passo 4: Atualizar o dono do livro, caso necessário
-        const book = transaction.bookId;
-        if (book) {
-            book.owner = userId; // Atribuir o livro ao usuário que aceitou
-            await book.save();
-        }
+        // Opcionalmente, podemos atualizar o status do livro para refletir que ele está novamente disponível
+        book.available = true; // Se o livro não foi transferido ainda
+        await book.save();
 
-        // Passo 5: Retornar a resposta
-        res.status(200).json({ message: 'Transaction accepted and book owner updated!', transaction });
-
+        res.status(200).json({
+            message: 'Transaction rejected successfully!',
+            transaction,
+            bookId: book._id, // Retorna o ID do livro
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error accepting transaction and updating book owner', error });
+        console.error('Error during transaction rejection:', error);
+        res.status(500).json({ message: 'Error rejecting transaction', error });
     }
 }
 
-  // Cancelar uma transação (se necessário)
-  static async cancelTransaction(req, res) {
-    const { bookId } = req.params;
-
-    try {
-      const book = await Book.findById(bookId);
-
-      if (!book) {
-        return res.status(404).json({ message: 'Book not found' });
-      }
-
-      const transaction = await Transaction.findOne({ bookId: bookId, status: 'In Progress' });
-
-      if (!transaction) {
-        return res.status(404).json({ message: 'Pending transaction not found' });
-      }
-
-      // Cancelar a transação
-      transaction.status = 'Canceled';
-      await transaction.save();
-
-      res.status(200).json({
-        message: 'Transaction canceled successfully!',
-        transaction,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error canceling transaction', error });
-    }
-  }
 
   // Obter todas as transações (para visualização)
   // Get all transactions (sent or received based on query parameter)
@@ -298,63 +345,45 @@ static async getSentTransactions(req, res) {
 }
 
 static async acceptTransaction(req, res) {
-  const { bookId } = req.params;
-
+  const transactionId = req.params.transactionId;
   try {
-    const book = await Book.findById(bookId);
-
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
-
-    // Verificar se a transação está em andamento
-    const transaction = await Transaction.findOne({ bookId: bookId, status: 'In Progress' });
+    const transaction = await Transaction.findById(transactionId);
 
     if (!transaction) {
-      return res.status(404).json({ message: 'Transaction not in progress' });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    // Alterar o status da transação para "Accepted"
+    if (transaction.status !== 'In Progress') {
+      return res.status(400).json({ message: 'Transaction is not in progress' });
+    }
+
     transaction.status = 'Accepted';
     await transaction.save();
 
-    res.status(200).json({
-      message: 'Transaction accepted successfully!',
-      transaction,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error accepting transaction', error });
+    return res.status(200).json({ message: 'Transaction accepted', transaction });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
 static async rejectTransaction(req, res) {
-  const { bookId } = req.params;
-
+  const transactionId = req.params.transactionId;
   try {
-    const book = await Book.findById(bookId);
-
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
-
-    // Verificar se a transação está em andamento
-    const transaction = await Transaction.findOne({ bookId: bookId, status: 'In Progress' });
+    const transaction = await Transaction.findById(transactionId);
 
     if (!transaction) {
-      return res.status(404).json({ message: 'Transaction not in progress' });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    // Alterar o status da transação para "Rejected"
+    if (transaction.status !== 'In Progress') {
+      return res.status(400).json({ message: 'Transaction is not in progress' });
+    }
+
     transaction.status = 'Rejected';
     await transaction.save();
 
-    res.status(200).json({
-      message: 'Transaction rejected successfully!',
-      transaction,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error rejecting transaction', error });
+    return res.status(200).json({ message: 'Transaction rejected', transaction });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
 

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../../utils/api';
-import styles from './Transactions.module.css'; // Adicione estilos se necessário
+import styles from './Transactions.module.css';
+
+import useFlashMessage from '../../../hooks/useFlashMessage'; // Adicione estilos se necessário
 
 const ReceivedTransactions = () => {
   const [receivedTransactions, setReceivedTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setFlashMessage } = useFlashMessage();
   const [error, setError] = useState(null);
+  const [isRequesting, setIsRequesting] = useState(false); // Correção aqui
   const token = localStorage.getItem('token') || '';
 
+  // Fetching received transactions
   useEffect(() => {
     if (!token) {
       setError('No token found');
@@ -32,54 +37,59 @@ const ReceivedTransactions = () => {
   }, [token]);
 
   // Função para aceitar transação
-const handleAcceptTransaction = async (transactionId) => {
-  try {
-    await api.patch(
-      `/transactions/${transactionId}/accept`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${JSON.parse(token)}` },
-      }
-    );
-    // Atualiza a lista de transações com o novo status
-    setReceivedTransactions((prevTransactions) =>
-      prevTransactions.map((transaction) =>
-        transaction._id === transactionId
-          ? { ...transaction, status: 'Accepted' }
-          : transaction
-      )
-    );
-  } catch (err) {
-    console.error('Error accepting transaction:', err);
-    setError('Failed to accept transaction');
-  }
-};
+  const handleAcceptTransaction = async (transactionId) => {
+    if (isRequesting) return; // Evita múltiplos cliques
+    setIsRequesting(true);
+    try {
+       await api.patch(
+        `/transactions/${transactionId}/accept`,
+        {},
+        { headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
+      );
+      setFlashMessage('Transaction accepted successfully', 'success');
+      setReceivedTransactions((prevTransactions) =>
+        prevTransactions.map((transaction) =>
+          transaction._id === transactionId
+            ? { ...transaction, status: 'Accepted' }
+            : transaction
+        )
+      );
+    } catch (err) {
+      setFlashMessage('Error accepting transaction', 'error');
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
-// Função para rejeitar transação
-const handleRejectTransaction = async (transactionId) => {
-  try {
-    await api.patch(
-      `/transactions/${transactionId}/reject`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${JSON.parse(token)}` },
-      }
-    );
-    // Atualiza a lista de transações com o novo status
-    setReceivedTransactions((prevTransactions) =>
-      prevTransactions.map((transaction) =>
-        transaction._id === transactionId
-          ? { ...transaction, status: 'Rejected' }
-          : transaction
-      )
-    );
-  } catch (err) {
-    console.error('Error rejecting transaction:', err);
-    setError('Failed to reject transaction');
-  }
-};
+  // Função para rejeitar transação
+  const handleRejectTransaction = async (transactionId) => {
+    if (isRequesting) return; // Evita múltiplos cliques
+    setIsRequesting(true);
+    try {
+       await api.patch(
+        `/transactions/${transactionId}/reject`,
+        {},
+        { headers: { Authorization: `Bearer ${JSON.parse(token)}` } }
+      );
+      setFlashMessage('Transaction rejected successfully', 'success');
+      setReceivedTransactions((prevTransactions) =>
+        prevTransactions.map((transaction) =>
+          transaction._id === transactionId
+            ? { ...transaction, status: 'Rejected' }
+            : transaction
+        )
+      );
+    } catch (err) {
+      setFlashMessage('Error rejecting transaction', 'error');
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
+  // Se a requisição estiver em andamento, mostramos o carregamento
   if (loading) return <div>Loading...</div>;
+
+  // Se houver um erro, mostramos a mensagem de erro
   if (error) return <div>{error}</div>;
 
   return (
@@ -93,7 +103,7 @@ const handleRejectTransaction = async (transactionId) => {
               <th>Status</th>
               <th>Type</th>
               <th>Sender</th>
-              <th>Actions</th> {/* Coluna para os botões */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -109,6 +119,7 @@ const handleRejectTransaction = async (transactionId) => {
                       <button
                         onClick={() => handleAcceptTransaction(transaction._id)}
                         className={styles.acceptButton}
+                        disabled={isRequesting} // Desabilita o botão se a requisição estiver em andamento
                       >
                         <i className="fas fa-check-circle"></i>
                       </button>
