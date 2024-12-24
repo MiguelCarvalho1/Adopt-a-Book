@@ -2,6 +2,8 @@ const Transaction = require('../models/Transaction');
 const getUserByToken = require('../helpers/get-user-by-token');
 const getToken = require('../helpers/get-token');
 const Book = require('../models/Book');
+const EventEmitter = require('events');
+const transactionEmitter = new EventEmitter();
 
 class TransactionController {
   // Criar uma transação
@@ -135,11 +137,12 @@ class TransactionController {
       book.owner = user._id;
       await book.save();
   
-      res.status(200).json({
-        message: 'Transaction accepted and book owner updated!',
-        transaction,
-        bookId: book._id, // Retorna o ID do livro
-      });
+      await this.completeTransaction({
+        body: {
+          bookId: transaction.bookId._id,
+          receiverId: transaction.receiverId 
+        }
+      }, res);
     } catch (error) {
       console.error('Error during transaction acceptance:', error);
       res.status(500).json({ message: 'Error accepting transaction', error });
@@ -148,39 +151,68 @@ class TransactionController {
 
   // Completar a transação e atualizar o status do livro automaticamente
   static async completeTransaction(req, res) {
-    const { bookId, receiverId } = req.body;
-    
     try {
-      const book = await Book.findById(bookId);
+      // Obter ID da transação a partir dos parâmetros da requisição
+      const { transactionId } = req.params;
   
-      if (!book) {
-        return res.status(404).json({ message: 'Book not found' });
-      }
-
-      // Verificar se a transação foi aceita e não está completa
-      const transaction = await Transaction.findOne({ bookId: bookId, status: 'Accepted' });
-
+      // Buscar a transação no banco de dados
+      const transaction = await Transaction.findById(transactionId)
+        .populate('bookId', 'title ownerId') // Popula informações do livro
+        .populate('receiverId', 'name email') // Popula informações do receptor
+        .populate('senderId', 'name email'); // Popula informações do remetente
+  
+      // Verificar se a transação existe
       if (!transaction) {
-        return res.status(404).json({ message: 'Transaction not in accepted status' });
+        return res.status(404).json({ message: 'Transaction not found' });
       }
-
-      // Marcar a transação como "Completed"
+  
+      // Verificar o status da transação
+      if (transaction.status === 'completed') {
+        return res.status(400).json({ message: 'Transaction is already completed' });
+      }
+  
+      // Marcar a transação como concluída
       transaction.status = 'Completed';
+      transaction.completedAt = new Date(); // Registra a data de conclusão
       await transaction.save();
-
-      // Atualizar o livro (marcar como não disponível)
-      book.available = false; // O livro não estará mais disponível para transações
-      book.owner = receiverId; // Alterar o dono do livro para o receptor da transação
-      await book.save();
-
-      res.status(200).json({
-        message: 'Transaction completed and book ownership updated successfully!',
-        transaction,
-        book,
+  
+      // Atualizar o status do livro (se aplicável)
+      if (transaction.bookId) {
+        const book = await Book.findById(transaction.bookId);
+        if (book) {
+          book.status = 'Completed'; // Marca o livro como não disponível
+          await book.save();
+        }
+      }
+  
+      // Sistema de pontos (se aplicável)
+      if (transaction.receiverId) {
+        const receiver = await User.findById(transaction.receiverId._id);
+        if (receiver) {
+          receiver.points = (receiver.points || 0) + transaction.points; // Adiciona os pontos da transação
+          await receiver.save();
+        }
+      }
+  
+      // Enviar notificação de conclusão (exemplo)
+      await sendNotification(transaction.senderId, {
+        title: 'Transaction Completed',
+        message: `The transaction for the book "${transaction.bookId.title}" has been successfully completed.`
+      });
+  
+      await sendNotification(transaction.receiverId, {
+        title: 'Transaction Completed',
+        message: `You have successfully completed the transaction for the book "${transaction.bookId.title}".`
+      });
+  
+      // Resposta de sucesso
+      return res.status(200).json({
+        message: 'Transaction successfully completed',
+        transaction
       });
     } catch (error) {
       console.error('Error completing transaction:', error);
-      res.status(500).json({ message: 'Error completing transaction', error });
+      return res.status(500).json({ message: 'Error completing transaction', error });
     }
   }
   
@@ -360,11 +392,52 @@ static async acceptTransaction(req, res) {
     transaction.status = 'Accepted';
     await transaction.save();
 
+    // Emitir evento para automação
+    transactionEmitter.emit('transactionAccepted', transaction);
+
     return res.status(200).json({ message: 'Transaction accepted', transaction });
   } catch (err) {
+    console.error('Error accepting transaction:', err);
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 }
+static async completeTransaction(req, res) {
+  const { bookId, receiverId } = req.body;
+
+  try {
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    // Verificar se há uma transação aceita para este livro
+    const transaction = await Transaction.findOne({ bookId, status: 'Accepted' });
+
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not in accepted status' });
+    }
+
+    // Atualizar o status da transação e o proprietário do livro
+    transaction.status = 'Completed';
+    await transaction.save();
+
+    book.available = false;
+    book.owner = receiverId;
+    await book.save();
+
+    res.status(200).json({
+      message: 'Transaction completed and book ownership updated successfully!',
+      transaction,
+      book,
+    });
+  } catch (error) {
+    console.error('Error completing transaction:', error);
+    res.status(500).json({ message: 'Error completing transaction', error });
+  }
+}
+
+
 static async rejectTransaction(req, res) {
   const transactionId = req.params.transactionId;
   try {
@@ -425,6 +498,31 @@ static async getUserTransactions(req, res) {
 }
 
 
+
+
 }
 
 module.exports = TransactionController;
+
+transactionEmitter.on('transactionAccepted', async (transaction) => {
+  try {
+    const book = await Book.findById(transaction.bookId);
+
+    if (!book) {
+      console.error(`Book not found for transaction ${transaction._id}`);
+      return;
+    }
+
+    // Atualizar o livro e transação
+    book.available = false;
+    book.owner = transaction.receiverId;
+    await book.save();
+
+    transaction.status = 'Completed';
+    await transaction.save();
+
+    console.log(`Transaction ${transaction._id} completed and book ownership updated.`);
+  } catch (error) {
+    console.error('Error in transactionAccepted event:', error);
+  }
+});

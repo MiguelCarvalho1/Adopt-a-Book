@@ -44,6 +44,9 @@ function Navbar() {
               <Link to="/transactions/sent">Requests Sent</Link>
             </li>
             <li>
+              <Link to="/reviews">Reviews</Link>
+            </li>
+            <li>
               <Link to="/user/profile">Profile</Link>
             </li>
             <li onClick={logout} className={styles.logout_button}>

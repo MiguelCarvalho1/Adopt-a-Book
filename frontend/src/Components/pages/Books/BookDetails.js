@@ -4,7 +4,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import styles from './BookDetails.module.css';
 import useFlashMessage from '../../../hooks/useFlashMessage';
 
-
 function BookDetails() {
   const [book, setBook] = useState({});
   const [loading, setLoading] = useState(true);
@@ -13,6 +12,8 @@ function BookDetails() {
   const [token] = useState(localStorage.getItem('token') || '');
   const [isRequesting, setIsRequesting] = useState(false);
   const navigate = useNavigate(); // Navegação entre páginas
+  const [reviews, setReviews] = useState([]); // Estado para os reviews
+  const [newReview, setNewReview] = useState(''); 
 
   useEffect(() => {
     setLoading(false); // Inicia o carregamento
@@ -20,6 +21,7 @@ function BookDetails() {
       .get(`/books/${id}`)
       .then((response) => {
         setBook(response.data.book);
+        setReviews(response.data.reviews || []);
         setLoading(false);
       })
       .catch((error) => {
@@ -38,16 +40,16 @@ function BookDetails() {
       navigate('/login');
       return;
     }
-  
+
     setIsRequesting(true);
     let msgType = 'success';
-  
+
     try {
       const requestData = {
         bookId: book._id,  // ID do livro
         // Não precisamos passar receiverId, o backend vai pegar do token
       };
-  
+
       const response = await api.post(
         '/transactions/start',
         requestData,  // Dados da transação
@@ -57,7 +59,7 @@ function BookDetails() {
           },
         }
       );
-  
+
       setFlashMessage(response.data.message, msgType);
       navigate('/transactions/sent');  // Redireciona para a página de transações enviadas
     } catch (err) {
@@ -68,12 +70,41 @@ function BookDetails() {
       setIsRequesting(false);
     }
   }
-  
-  
-  
-  
-  
-  
+
+  async function submitReview() {
+    if (!token) {
+      setFlashMessage('You need to log in to leave a review.', 'error');
+      navigate('/login');
+      return;
+    }
+
+    if (!newReview.trim()) {
+      setFlashMessage('Review cannot be empty.', 'error');
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        `/books/${id}/reviews`,
+        { review: newReview },
+        {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(token)}`,
+          },
+        }
+      );
+
+      setReviews((prevReviews) => [...prevReviews, response.data.review]); // Atualiza a lista de reviews
+      setNewReview('');
+      setFlashMessage('Review added successfully!', 'success');
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      setFlashMessage(
+        err?.response?.data?.message || 'Failed to submit review.',
+        'error'
+      );
+    }
+  }
 
   if (loading) {
     return <p>Loading book details...</p>;
@@ -131,6 +162,38 @@ function BookDetails() {
               You need <Link to="/register">create an account</Link> to request the book.
             </p>
           )}
+          
+          {/* Seção de Reviews */}
+          <div className={styles.reviews_section}>
+            <h2>Reviews</h2>
+            {reviews.length > 0 ? (
+              <ul className={styles.reviews_list}>
+                {reviews.map((review, index) => (
+                  <li key={index} className={styles.review_item}>
+                    <p>{review.text}</p>
+                    <small>By {review.user}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No reviews yet. Be the first to leave one!</p>
+            )}
+            {token ? (
+              <div className={styles.add_review}>
+                <textarea
+                  value={newReview}
+                  onChange={(e) => setNewReview(e.target.value)}
+                  placeholder="Leave your review here..."
+                />
+                <button onClick={submitReview}>Submit Review</button>
+              </div>
+            ) : (
+              <p>
+                <Link to="/login">Log in</Link> to leave a review.
+              </p>
+            )}
+          </div>
+
         </section>
       ) : (
         <p>Book details not available.</p>
