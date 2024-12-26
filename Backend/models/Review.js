@@ -2,36 +2,31 @@ const mongoose = require('../db/conn');
 const { Schema } = mongoose;
 
 const Review = mongoose.model(
-    "Review",
+    'Review',
     new Schema(
         {
-            transactionId: {
-              type: Schema.Types.ObjectId,
-              ref: 'Transaction',
-              required: true,
-            },
-            reviewerId: {
-              type: Schema.Types.ObjectId,
-              ref: 'User',
-              required: true,
+            bookId: {
+                type: Schema.Types.ObjectId,
+                ref: 'Book',
+                required: true,
             },
             reviewedUserId: {
-              type: Schema.Types.ObjectId,
-              ref: 'User',
-              required: true,
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+                required: true,
             },
             rating: {
-              type: Number,
-              required: true,
-              min: [1, 'A avaliação mínima é 1'],
-              max: [5, 'A avaliação máxima é 5'],
+                type: Number,
+                required: true,
+                min: [1, 'The minimum assessment is 1'],
+                max: [5, 'The maximum assessment is 5'],
             },
             comment: {
-              type: String,
+                type: String,
             },
-          },
-          { timestamps: true }
-        )
+        },
+        { timestamps: true }
+    )
 );
 
 module.exports = Review;

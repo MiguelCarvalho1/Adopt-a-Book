@@ -24,4 +24,28 @@
   .review-card small {
     color: #666;
   }
+  .feedback_page {
+    padding: 20px;
+  }
+  
+  .reviews_table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .reviews_table th,
+  .reviews_table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .reviews_table th {
+    background-color: #f4f4f4;
+  }
+  
+  .reviews_table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
   

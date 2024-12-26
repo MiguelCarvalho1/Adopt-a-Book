@@ -11,27 +11,31 @@ function BookDetails() {
   const { setFlashMessage } = useFlashMessage();
   const [token] = useState(localStorage.getItem('token') || '');
   const [isRequesting, setIsRequesting] = useState(false);
-  const navigate = useNavigate(); // Navegação entre páginas
-  const [reviews, setReviews] = useState([]); // Estado para os reviews
-  const [newReview, setNewReview] = useState(''); 
+  const navigate = useNavigate();
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState('');
+  const [selectedRating, setSelectedRating] = useState('');
 
   useEffect(() => {
-    setLoading(false); // Inicia o carregamento
-    api
-      .get(`/books/${id}`)
-      .then((response) => {
+    async function fetchBookDetails() {
+      setLoading(false);
+      try {
+        
+       
+        const response = await api.get(`/books/${id}`);
         setBook(response.data.book);
         setReviews(response.data.reviews || []);
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching book details:', error);
-        setLoading(false);
         setFlashMessage(
           'Error fetching book details. Please try again later.',
           'error'
         );
-      });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBookDetails();
   }, [id, setFlashMessage]);
 
   async function requestBook() {
@@ -42,30 +46,24 @@ function BookDetails() {
     }
 
     setIsRequesting(true);
-    let msgType = 'success';
-
     try {
-      const requestData = {
-        bookId: book._id,  // ID do livro
-        // Não precisamos passar receiverId, o backend vai pegar do token
-      };
-
       const response = await api.post(
         '/transactions/start',
-        requestData,  // Dados da transação
+        { bookId: book._id },
         {
           headers: {
-            Authorization: `Bearer ${JSON.parse(token)}`,  // Envio do token para autenticação
+            Authorization: `Bearer ${JSON.parse(token)}`,
           },
         }
       );
-
-      setFlashMessage(response.data.message, msgType);
-      navigate('/transactions/sent');  // Redireciona para a página de transações enviadas
-    } catch (err) {
-      console.error('Request error:', err.response ? err.response.data : err.message);
-      msgType = 'error';
-      setFlashMessage(err?.response?.data?.message || 'Failed to request the book.', msgType);
+      setFlashMessage(response.data.message, 'success');
+      navigate('/transactions/sent');
+    } catch (error) {
+      console.error('Request error:', error.response ? error.response.data : error.message);
+      setFlashMessage(
+        error?.response?.data?.message || 'Failed to request the book.',
+        'error'
+      );
     } finally {
       setIsRequesting(false);
     }
@@ -78,15 +76,15 @@ function BookDetails() {
       return;
     }
 
-    if (!newReview.trim()) {
-      setFlashMessage('Review cannot be empty.', 'error');
+    if (!newReview.trim() || !selectedRating) {
+      setFlashMessage('Review and rating cannot be empty.', 'error');
       return;
     }
 
     try {
       const response = await api.post(
-        `/books/${id}/reviews`,
-        { review: newReview },
+        `/reviews/${id}`,
+        { comment: newReview, rating: selectedRating },
         {
           headers: {
             Authorization: `Bearer ${JSON.parse(token)}`,
@@ -94,13 +92,14 @@ function BookDetails() {
         }
       );
 
-      setReviews((prevReviews) => [...prevReviews, response.data.review]); // Atualiza a lista de reviews
+      setReviews((prevReviews) => [...prevReviews, response.data.review]);
       setNewReview('');
+      setSelectedRating('');
       setFlashMessage('Review added successfully!', 'success');
-    } catch (err) {
-      console.error('Error submitting review:', err);
+    } catch (error) {
+      console.error('Error submitting review:', error);
       setFlashMessage(
-        err?.response?.data?.message || 'Failed to submit review.',
+        error?.response?.data?.message || 'Failed to submit review.',
         'error'
       );
     }
@@ -118,7 +117,7 @@ function BookDetails() {
             <h1>{book.title}</h1>
             {book.subtitle && <p>{book.subtitle}</p>}
           </div>
-          <div className={styles.book_info_section}> 
+          <div className={styles.book_info_section}>
             <div className={styles.book_images}>
               {book.images?.length > 0 ? (
                 book.images.map((image, index) => (
@@ -162,16 +161,17 @@ function BookDetails() {
               You need <Link to="/register">create an account</Link> to request the book.
             </p>
           )}
-          
-          {/* Seção de Reviews */}
+
+          {/* Reviews Section */}
           <div className={styles.reviews_section}>
             <h2>Reviews</h2>
             {reviews.length > 0 ? (
               <ul className={styles.reviews_list}>
                 {reviews.map((review, index) => (
                   <li key={index} className={styles.review_item}>
-                    <p>{review.text}</p>
-                    <small>By {review.user}</small>
+                    <p><strong>Rating:</strong> {review.rating}/5</p>
+                    <p>{review.comment}</p>
+                    <small>By {review.reviewer?.name || 'Anonymous'}</small>
                   </li>
                 ))}
               </ul>
@@ -185,6 +185,17 @@ function BookDetails() {
                   onChange={(e) => setNewReview(e.target.value)}
                   placeholder="Leave your review here..."
                 />
+                <select
+                  value={selectedRating}
+                  onChange={(e) => setSelectedRating(e.target.value)}
+                >
+                  <option value="">Select Rating</option>
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <option key={rating} value={rating}>
+                      {rating}
+                    </option>
+                  ))}
+                </select>
                 <button onClick={submitReview}>Submit Review</button>
               </div>
             ) : (
@@ -193,7 +204,6 @@ function BookDetails() {
               </p>
             )}
           </div>
-
         </section>
       ) : (
         <p>Book details not available.</p>

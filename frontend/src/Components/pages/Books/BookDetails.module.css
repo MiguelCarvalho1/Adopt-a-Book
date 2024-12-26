@@ -157,3 +157,17 @@
   font-size: 1rem;
   color: #007bff;
 }
+.reviews_section {
+  margin-top: 2rem;
+}
+
+.reviews_list {
+  list-style: none;
+  padding: 0;
+}
+
+.review_item {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
