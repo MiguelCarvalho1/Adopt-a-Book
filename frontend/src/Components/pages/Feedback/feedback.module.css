@@ -110,3 +110,17 @@
     padding: 15px;
   }
 }
+.star,
+.half,
+.empty {
+  display: inline-block;
+  width: 20px; /* Tamanho das estrelas */
+  height: 20px;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.star, .half, .empty {
+  font-size: 24px; /* Tamanho das estrelas */
+  color: #FFD700; /* Cor dourada */
+}

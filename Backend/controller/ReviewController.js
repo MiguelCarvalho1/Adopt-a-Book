@@ -57,23 +57,24 @@ module.exports = class ReviewController {
          
           // Buscar as avaliações feitas pelo usuário
           const reviews = await Review.find({ reviewedUserId: user._id })
-            .populate('bookId', 'title') // Popula o título do livro
-            .populate('reviewedUserId', 'name') // Popula o nome do usuário avaliado (usuário que recebeu a avaliação)
-            .select('comment rating bookId reviewedUserId createdAt '); // Seleciona os campos necessários
+          .populate('bookId', 'title user') // Popula o título do livro e o dono do livro
+          .populate('reviewedUserId', 'name') // Popula o nome do usuário que foi avaliado
+          .select('comment rating bookId reviewedUserId createdAt'); // Seleciona os campos necessários
       
-          // Se não houver avaliações, retorna uma resposta apropriada
-          if (!reviews || reviews.length === 0) {
-            return res.status(404).json({ message: 'No reviews found for this user.' });
-          }
+      // Se não houver avaliações, retorna uma resposta apropriada
+      if (!reviews || reviews.length === 0) {
+          return res.status(204).json({ message: 'No reviews found for this user.' }); // Usando código 204 para "sem conteúdo"
+      }
       
           // Formatar as avaliações para a resposta
           const formattedReviews = reviews.map(review => ({
             bookTitle: review.bookId?.title || 'Unknown', // Se não houver título, retorna 'Unknown'
-            reviewerName: review.reviewedUserId?.name || 'Anonymous', // Se não houver nome do usuário avaliado, retorna 'Anonymous'
+            reviewerName: review.reviewedUserId?.name || 'Anonymous', // Nome do revisor
+            ownerName: review.bookId?.user?.name || '', // Nome do dono do livro
             comment: review.comment,
             rating: review.rating,
             createdAt: new Date(review.createdAt).toLocaleDateString() || 'Unknown', // Formatação da data
-          }));
+        }));
       
           // Envia a resposta com as avaliações formatadas
           res.status(200).json(formattedReviews);
@@ -161,3 +162,26 @@ module.exports = class ReviewController {
         }
     }
 };
+const getStars = (rating) => {
+    let stars = '';
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+  
+    // Adiciona estrelas cheias
+    for (let i = 0; i < fullStars; i++) {
+      stars += '<span class="star"></span>';
+    }
+  
+    // Adiciona estrelas meia
+    if (halfStar) {
+      stars += '<span class="half"></span>';
+    }
+  
+    // Adiciona estrelas vazias
+    for (let i = 0; i < emptyStars; i++) {
+      stars += '<span class="empty"></span>';
+    }
+  
+    return stars;
+  };

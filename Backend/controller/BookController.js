@@ -3,9 +3,34 @@ const Transaction = require('../models/Transaction');
 const getUserByToken = require('../helpers/get-user-by-token');
 const getToken = require('../helpers/get-token');
 const { ObjectId } = require('mongodb');
+const BookService = require('../service/BookService');
+
 
 
 module.exports = class BookController {
+
+  static async getBooksByGenre(req, res) {
+    const { genre } = req.params;  // Obter o gênero a partir dos parâmetros da URL
+    try {
+      const books = await BookService.getBooksByGenre(genre);
+      res.json(books);
+    } catch (error) {
+      console.error('Error when searching for books by genre:', error.message);
+      res.status(500).json({ message: 'Error when searching for books by genre' });
+    }
+  }
+
+  // Função para retornar os top livros de um gênero
+  static async getTopBooksByGenre(req, res) {
+    const { genre } = req.params;  // Obter o gênero a partir dos parâmetros da URL
+    try {
+      const books = await BookService.getTopBooksByGenre(genre);
+      res.json(books);
+    } catch (error) {
+      console.error('Error when searching for books by genre:', error.message);
+      res.status(500).json({ message: 'Error when searching for books by genre' });
+    }
+  }
   // create a book
 // Método para criar um livro e uma transação associada
 static async create(req, res) {

@@ -3,14 +3,37 @@ import api from '../../../utils/api';
 import styles from './feedback.module.css';
 
 function FeedbackPage() {
-  const [userReviews, setUserReviews] = useState([]); // Avaliações feitas pelo usuário
-  const [bookReviews, setBookReviews] = useState([]); // Avaliações feitas sobre livros do usuário
+  const [userReviews, setUserReviews] = useState([]);
+  const [bookReviews, setBookReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userError, setUserError] = useState(null);
   const [bookError, setBookError] = useState(null);
 
   const token = localStorage.getItem('token') || '';
 
+  const getStars = (rating) => {
+    let stars = [];
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+  
+    // Adiciona estrelas cheias
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span className={styles.star} key={`full-${i}`}>&#9733;</span>); // Estrela cheia
+    }
+  
+    // Adiciona estrela meia
+    if (halfStar) {
+      stars.push(<span className={styles.half} key="half">&#9733;</span>); // Estrela meia
+    }
+  
+    // Adiciona estrelas vazias
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<span className={styles.empty} key={`empty-${i}`}>&#9734;</span>); // Estrela vazia
+    }
+  
+    return stars;
+  };
   useEffect(() => {
     if (!token) {
       setUserError('User not logged in.');
@@ -19,7 +42,6 @@ function FeedbackPage() {
       return;
     }
 
-    // Função para buscar as avaliações feitas pelo usuário
     const fetchUserReviews = async () => {
       try {
         const response = await api.get('/reviews/user', {
@@ -31,7 +53,6 @@ function FeedbackPage() {
       }
     };
 
-    // Função para buscar as avaliações feitas sobre os livros do usuário
     const fetchBookReviews = async () => {
       try {
         const response = await api.get('/reviews/books', {
@@ -44,9 +65,6 @@ function FeedbackPage() {
       }
     };
 
-    // Inicia as requisições simultâneas
-    
-
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -57,7 +75,7 @@ function FeedbackPage() {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [token]);
 
@@ -66,9 +84,6 @@ function FeedbackPage() {
 
   return (
     <div className={styles.feedback_page}>
-
-
-      {/* Avaliações feitas pelo usuário */}
       <section>
         <h2>Your Reviews</h2>
         {userReviews.length === 0 ? (
@@ -80,20 +95,18 @@ function FeedbackPage() {
                 <th>Book Title</th>
                 <th>Rating</th>
                 <th>Comment</th>
-                <th>Name</th>
+                <th>Owner</th>
                 <th>Date</th>
-                
               </tr>
             </thead>
             <tbody>
               {userReviews.map((review) => (
                 <tr key={review._id}>
                   <td>{review.bookTitle || 'Unknown'}</td>
-                  <td>{review.rating}</td>
+                  <td>{getStars(review.rating)}</td>
                   <td>{review.comment}</td>
-                  <td>{review.reviewerName}</td>
+                  <td>{review.ownerName}</td>
                   <td>{review.createdAt || 'Unknown Date'}</td>
-                
                 </tr>
               ))}
             </tbody>
@@ -101,7 +114,6 @@ function FeedbackPage() {
         )}
       </section>
 
-      {/* Avaliações feitas sobre os livros do usuário */}
       <section>
         <h2>Reviews for Your Books</h2>
         {bookReviews.length === 0 ? (
@@ -111,20 +123,20 @@ function FeedbackPage() {
             <thead>
               <tr>
                 <th>Book Title</th>
-                <th>Reviewer</th>
                 <th>Rating</th>
                 <th>Comment</th>
-               
+                <th>Reviewer</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               {bookReviews.map((review) => (
                 <tr key={review._id}>
                   <td>{review.bookTitle || 'Unknown'}</td>
-                  <td>{review.reviewerName || 'Anonymous'}</td>
-                  <td>{review.rating}</td>
+                  <td>{getStars(review.rating)}</td>
                   <td>{review.comment}</td>
-                  
+                  <td>{review.reviewerName || 'Anonymous'}</td>
+                  <td>{review.createdAt || 'Unknown Date'}</td>
                 </tr>
               ))}
             </tbody>

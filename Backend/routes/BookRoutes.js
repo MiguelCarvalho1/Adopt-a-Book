@@ -17,6 +17,10 @@ router.patch(
 
 router.delete('/:id', verifyToken, BookController.removeBookById);
 
-//router.get('/home', BookController.getHomeBooks);
+// Rota para buscar livros por gênero
+router.get('/genre/:genre', BookController.getBooksByGenre);
+
+// Rota para buscar os top livros de um gênero
+router.get('/genre/:genre/top', BookController.getTopBooksByGenre);
 
 module.exports = router;
