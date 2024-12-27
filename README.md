@@ -61,8 +61,8 @@
 ## Recommended Technologies
 
 ### Frontend
-- **React.js** or **Vue.js**: For a responsive and modern interface.
-- **CSS Framework**: Tailwind CSS or Bootstrap.
+- **React.js**: For a responsive and modern interface.
+- **CSS Framework**.
 
 ### Backend
 - **Node.js (Express)**: To handle application logic.
