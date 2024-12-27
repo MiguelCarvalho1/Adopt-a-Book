@@ -27,10 +27,11 @@
      - Keywords (by title or author).
 
 3. **Points System**  
-   - **Description**: Incentivizes book exchange through rewards.
+   - **Description**: In your code, you are searching for books of different genres (such as fiction, nonfiction, etc.).
+   -  To reflect this, the q=subject:{genre} endpoint is used, which allows books to be retrieved by genre.
    - **How it Works**:
-     - Donating a book: earn 5 points.
-     - Exchanging a book: earn or spend points (negotiated between users).
+     -Genre Menu and Top 3 by Genre: Your code returns books in ‘cards’ and organises the books by genre.
+     - The Google Books API doesn't have a direct endpoint for returning ‘top 3’ by genre, but you can apply this logic on the frontend by taking the first three books from the results for each genre.
    - **Rewards**:
      - Exchange points for special books or discounts with partners (optional).
      - Ranking of the most active users.
@@ -60,8 +61,8 @@
 ## Recommended Technologies
 
 ### Frontend
-- **React.js** or **Vue.js**: For a responsive and modern interface.
-- **CSS Framework**: Tailwind CSS or Bootstrap.
+- **React.js**: For a responsive and modern interface.
+- **CSS Framework**.
 
 ### Backend
 - **Node.js (Express)**: To handle application logic.
