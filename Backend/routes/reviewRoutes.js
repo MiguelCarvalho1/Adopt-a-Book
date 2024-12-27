@@ -9,6 +9,6 @@ router.get('/user', verifyToken, ReviewController.getUserReviews);
 router.put('/:id', verifyToken, ReviewController.updateReview);
 router.delete('/:id', verifyToken, ReviewController.deleteReview);
 
-router.get('/:bookId', ReviewController.getReviewsByBook);
+router.get('/books', ReviewController.getReviewsByUserBooks);
 
 module.exports = router;

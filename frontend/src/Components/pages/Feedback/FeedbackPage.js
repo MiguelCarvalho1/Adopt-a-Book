@@ -6,62 +6,67 @@ function FeedbackPage() {
   const [userReviews, setUserReviews] = useState([]); // Avaliações feitas pelo usuário
   const [bookReviews, setBookReviews] = useState([]); // Avaliações feitas sobre livros do usuário
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [userError, setUserError] = useState(null);
+  const [bookError, setBookError] = useState(null);
 
-  const [token] = useState(localStorage.getItem('token') || '');  // Recupera o token do localStorage
+  const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
     if (!token) {
-      setError('User not logged in.');
+      setUserError('User not logged in.');
+      setBookError('User not logged in.');
       setLoading(false);
       return;
     }
 
-    // Função para buscar avaliações feitas pelo usuário
+    // Função para buscar as avaliações feitas pelo usuário
     const fetchUserReviews = async () => {
       try {
-        const response = await api.get(`/reviews/user/${token}`, {
-          headers: { Authorization: `Bearer ${JSON.parse(token)}` }, // Usando JSON.parse como você mencionou
+        const response = await api.get('/reviews/user', {
+          headers: { Authorization: `Bearer ${JSON.parse(token)}` },
         });
-        setUserReviews(response.data);
+        setUserReviews(response.data || []);
       } catch (err) {
-        setError('Error loading user reviews. Please try again later.');
+        setUserError('Error loading user reviews. Please try again later.');
       }
     };
 
-    // Função para buscar avaliações feitas sobre os livros do usuário
+    // Função para buscar as avaliações feitas sobre os livros do usuário
     const fetchBookReviews = async () => {
       try {
-        const response = await api.get(`/reviews/${token}`, {
-          headers: { Authorization: `Bearer ${JSON.parse(token)}` }, // Usando JSON.parse como você mencionou
+        const response = await api.get('/reviews/books', {
+          headers: { Authorization: `Bearer ${JSON.parse(token)}` },
         });
-        setBookReviews(response.data);
+        setBookReviews(response.data || []);
       } catch (err) {
-        setError('Error loading book reviews. Please try again later.');
+        setBookError('Error loading book reviews. Please try again later.');
+        console.error('Error fetching book reviews:', err);
       }
     };
 
-    // Inicia as requisições
-    const fetchData = async () => {
-      await fetchUserReviews();
-      await fetchBookReviews();
-      setLoading(false); // Finaliza o estado de loading após as requisições
-    };
+    // Inicia as requisições simultâneas
+    
 
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchUserReviews(), fetchBookReviews()]);
+      } catch (err) {
+        // Se algo der errado, você pode tratar o erro aqui, se necessário
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchData();
   }, [token]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (userError || bookError) return <p>{userError || bookError}</p>;
 
   return (
     <div className={styles.feedback_page}>
-      <h1>Evaluations and Feedback</h1>
+
 
       {/* Avaliações feitas pelo usuário */}
       <section>
@@ -75,16 +80,20 @@ function FeedbackPage() {
                 <th>Book Title</th>
                 <th>Rating</th>
                 <th>Comment</th>
+                <th>Name</th>
                 <th>Date</th>
+                
               </tr>
             </thead>
             <tbody>
               {userReviews.map((review) => (
                 <tr key={review._id}>
-                  <td>{review.bookId?.title || 'Unknown'}</td>
+                  <td>{review.bookTitle || 'Unknown'}</td>
                   <td>{review.rating}</td>
                   <td>{review.comment}</td>
-                  <td>{new Date(review.createdAt).toLocaleDateString()}</td>
+                  <td>{review.reviewerName}</td>
+                  <td>{review.createdAt || 'Unknown Date'}</td>
+                
                 </tr>
               ))}
             </tbody>
@@ -105,17 +114,17 @@ function FeedbackPage() {
                 <th>Reviewer</th>
                 <th>Rating</th>
                 <th>Comment</th>
-                <th>Date</th>
+               
               </tr>
             </thead>
             <tbody>
               {bookReviews.map((review) => (
                 <tr key={review._id}>
-                  <td>{review.bookId?.title || 'Unknown'}</td>
-                  <td>{review.reviewerUserId?.name || 'Anonymous'}</td>
+                  <td>{review.bookTitle || 'Unknown'}</td>
+                  <td>{review.reviewerName || 'Anonymous'}</td>
                   <td>{review.rating}</td>
                   <td>{review.comment}</td>
-                  <td>{new Date(review.createdAt).toLocaleDateString()}</td>
+                  
                 </tr>
               ))}
             </tbody>

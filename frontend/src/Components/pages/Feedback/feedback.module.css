@@ -1,51 +1,112 @@
-
+/* Container da página de feedback */
 .feedback_page {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Estilo para os cards de avaliação */
+.review-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+}
+
+.review-card h3 {
+  margin: 0 0 15px;
+  font-size: 1.25em;
+  color: #333;
+}
+
+.review-card p {
+  margin: 5px 0;
+  line-height: 1.6;
+  color: #555;
+}
+
+.review-card small {
+  font-size: 0.875em;
+  color: #888;
+}
+
+/* Estilo da tabela de avaliações */
+.reviews_table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px; /* Espaçamento entre as tabelas */
+}
+
+/* Cabeçalho da tabela */
+.reviews_table thead {
+  background-color: #007bff;
+  color: white;
+  text-transform: uppercase;
+}
+
+.reviews_table th {
+  padding: 12px 15px;
+  font-size: 1em;
+  letter-spacing: 0.05em;
+  text-align: left; /* Alinhamento do texto no cabeçalho */
+  border-bottom: 2px solid #ddd;
+}
+
+/* Linhas de conteúdo */
+.reviews_table td {
+  padding: 12px 15px;
+  font-size: 1em;
+  color: #333;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.reviews_table tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.reviews_table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.reviews_table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+/* Coluna de Data */
+.reviews_table .date_column {
+  text-align: center;
+  font-style: italic;
+  color: #555;
+}
+
+/* Garantir que a tabela não ultrapasse o container */
+.reviews_table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: 30px; /* Espaçamento entre as tabelas */
+}
+
+/* Responsividade: Ajuste da tabela em telas pequenas */
+@media (max-width: 768px) {
+  .reviews_table th, .reviews_table td {
+    padding: 10px;
+    font-size: 0.9em;
   }
-  
+
   .review-card {
-    border: 1px solid #ccc;
-    border-radius: 5px;
     padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
-  .review-card h3 {
-    margin: 0 0 10px;
-  }
-  
-  .review-card p {
-    margin: 5px 0;
-  }
-  
-  .review-card small {
-    color: #666;
-  }
-  .feedback_page {
-    padding: 20px;
-  }
-  
-  .reviews_table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .reviews_table th,
-  .reviews_table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .reviews_table th {
-    background-color: #f4f4f4;
-  }
-  
-  .reviews_table tbody tr:hover {
-    background-color: #f9f9f9;
-  }
-  
+}

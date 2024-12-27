@@ -43,63 +43,85 @@ module.exports = class ReviewController {
     
 
     // Função para obter as avaliações feitas pelo usuário
-    static async getUserReviews(req, res) {
+    static async getUserReviews(req, res) { 
+        const token = getToken(req);
+          
+          // Verifica se o token é válido e se o usuário existe
+          const user = await getUserByToken(token);
+          if (!user) {
+            return res.status(401).json({ message: 'User not found or invalid token.' });
+          }
+      
         try {
-            const token = getToken(req);
-            const user = await getUserByToken(token);
-            
-            if (!user) {
-                return res.status(401).json({ message: 'User not found or invalid token.' });
-            }
-    
-            // Buscar as avaliações feitas pelo usuário
-            const reviews = await Review.find({ reviewerUserId: user._id })
-                .populate('bookId', 'title')  // Popula o título do livro
-                .populate('reviewerUserId', 'name')  // Popula o nome do revisor
-                .select('comment rating bookId reviewerUserId');
-            
-            res.status(200).json(
-                reviews.map(review => ({
-                    bookTitle: review.bookId?.title || 'Unknown',
-                    reviewerName: review.reviewerUserId?.name || 'Anonymous',
-                    comment: review.comment,
-                    rating: review.rating,
-                }))
-            );
+          // Obtém o token da requisição
+         
+          // Buscar as avaliações feitas pelo usuário
+          const reviews = await Review.find({ reviewedUserId: user._id })
+            .populate('bookId', 'title') // Popula o título do livro
+            .populate('reviewedUserId', 'name') // Popula o nome do usuário avaliado (usuário que recebeu a avaliação)
+            .select('comment rating bookId reviewedUserId createdAt '); // Seleciona os campos necessários
+      
+          // Se não houver avaliações, retorna uma resposta apropriada
+          if (!reviews || reviews.length === 0) {
+            return res.status(404).json({ message: 'No reviews found for this user.' });
+          }
+      
+          // Formatar as avaliações para a resposta
+          const formattedReviews = reviews.map(review => ({
+            bookTitle: review.bookId?.title || 'Unknown', // Se não houver título, retorna 'Unknown'
+            reviewerName: review.reviewedUserId?.name || 'Anonymous', // Se não houver nome do usuário avaliado, retorna 'Anonymous'
+            comment: review.comment,
+            rating: review.rating,
+            createdAt: new Date(review.createdAt).toLocaleDateString() || 'Unknown', // Formatação da data
+          }));
+      
+          // Envia a resposta com as avaliações formatadas
+          res.status(200).json(formattedReviews);
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching user reviews.', error });
+          console.error('Error fetching user reviews:', error);
+          res.status(500).json({ message: 'Error fetching user reviews.', error });
         }
-    }
-    
+      }
+      
 
     
 
-    static async getReviewsByBook(req, res) {
+      static async getReviewsByUserBooks(req, res) {
         try {
-            const { bookId } = req.params;  // bookId da URL
-            const token = getToken(req);
-            const user = await getUserByToken(token);
-            
-            if (!user) {
-                return res.status(401).json({ message: 'User not found or invalid token.' });
-            }
-    
-            // Buscar reviews associadas ao livro
-            const reviews = await Review.find({ bookId: bookId })
-                .populate('reviewerUserId', 'name')  // Popula o nome do revisor
-                .populate('bookId', 'title')  // Popula o título do livro
-                .select('comment rating reviewerUserId bookId');
-        
-            res.status(200).json(reviews.map(review => ({
-                bookTitle: review.bookId?.title || 'Unknown',
-                reviewerName: review.reviewerUserId?.name || 'Anonymous',
-                comment: review.comment,
-                rating: review.rating
-            })));
+          const token = getToken(req); // Obtém o token da requisição
+          const user = await getUserByToken(token); // Obtém o usuário associado ao token
+          
+          if (!user) {
+            return res.status(401).json({ message: 'User not found or invalid token.' });
+          }
+      
+          // Buscar livros do usuário
+          const userBooks = await Book.find({ user: user._id });  // Presumindo que o modelo 'Book' tem um campo 'owner' que é o usuário que o adicionou
+          
+          if (!userBooks || userBooks.length === 0) {
+            return res.status(404).json({ message: 'No books found for this user.' });
+          }
+      
+          // Buscar as reviews associadas aos livros do usuário
+          const reviews = await Review.find({ bookId: { $in: userBooks.map(book => book._id) } })
+            .populate('reviewedUserId', 'name')  // Popula o nome do revisor
+            .populate('bookId', 'title')  // Popula o título do livro
+            .select('comment rating reviewedUserId bookId createdAt');
+      
+          // Formatar as respostas
+          res.status(200).json(reviews.map(review => ({
+            bookTitle: review.bookId?.title || 'Unknown',
+            reviewerName: review.reviewedUserId?.name || 'Anonymous',
+            comment: review.comment,
+            rating: review.rating,
+            createdAt: new Date(review.createdAt).toLocaleDateString() || 'Unknown', // Data formatada
+          })));
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching reviews by book.', error });
+            console.error("Error fetching reviews for user books:", error); 
+          res.status(500).json({ message: 'Error fetching reviews for user books.', error });
         }
-    }
+      }
+      
     
     
     
