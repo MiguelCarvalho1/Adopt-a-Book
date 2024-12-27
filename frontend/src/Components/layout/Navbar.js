@@ -27,7 +27,7 @@ function Navbar() {
           <Link to="/">Adopt</Link>
         </li>
         <li>
-          <Link to="/books/home">Books List</Link>
+          <Link to="/books/home">Books List From Google</Link>
         </li>
         {authenticated ? (
           <>

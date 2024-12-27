@@ -7,8 +7,16 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   // Lista de gêneros para buscar
-  const genres = ['fiction', 'nonfiction', 'mystery', 'romance', 'fantasy', 'biography', 'history', 'science', 'police', 'thrillers'];
-
+  const genres = [
+    'fiction', 'nonfiction', 'mystery', 'romance', 'fantasy', 'biography', 
+    'history', 'science', 'police', 'thrillers',  'children', 
+    'self-help', 'cookbooks', 'art', 'travel', 'poetry', 'comics', 'horror', 
+    'health', 'philosophy', 'politics', 'economics', 'spirituality', 'religion', 
+    'business',  'classic', 'literature', 'humor', 'adventure', 
+    'graphic novels', 'drama',  'dystopian', 'paranormal', 
+    'memoir', 'law', 'mathematics', 'psychology', 'psychic', 'medical', 'technology'
+  ];
+  
 
   const fetchTopBooksByGenres = async () => {
     setLoading(true);

@@ -3,6 +3,8 @@ import api from "../../utils/api";
 import styles from "../layout/Home.module.css";
 import { Link } from "react-router-dom";
 
+import Book from '../../assets/img/book.png';
+
 function Home() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,23 +47,30 @@ function Home() {
 
   return (
     <section className={styles.home}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.hero_content}>
-          <h1>Discover Your Next Favorite Book</h1>
-          <p>
-            Browse through our collection of amazing books. From timeless
-            classics to hidden gems, find a book you'll love!
-          </p>
-        </div>
-      </section>
+{/* Hero Section */}
+<section className={styles.hero}>
+  <div className={styles.hero_content}>
+    <h1>Explore Our Exclusive Book Collection</h1>
+    <p>
+      Dive into a world of unique and captivating stories, carefully selected 
+      just for you. Whether you want to buy, sell, donate, or exchange books, 
+      this is the perfect place to find your next treasure. Discover your next 
+      favorite book and turn every page into a new adventure!
+    </p>
+  </div>
+  <div className={styles.hero_image}>
+    <img src={Book} alt="Books Collection" />
+  </div>
+</section>
 
       {/* Categorias de Livros */}
       <section className={styles.categories}>
         <h2>Books by Genre</h2>
         {sortedGenres.map((genre) => (
           <div key={genre} className={styles.category}>
+            <div className={styles.categoryname}>
             <h3>{genre}</h3>
+            </div>
             <div className={styles.books}>
               {booksByGenre[genre].map((book) => (
                 <div key={book._id} className={styles.book_card}>

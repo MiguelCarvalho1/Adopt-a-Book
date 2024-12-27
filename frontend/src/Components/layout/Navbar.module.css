@@ -8,6 +8,7 @@
   color: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 0.9rem; /* Tamanho reduzido da fonte */
 }
 
 .navbar:hover {
@@ -42,7 +43,7 @@
   color: #fff;
   text-decoration: none;
   margin: 0 16px;
-  font-size: 1rem;
+  font-size: 0.9rem; /* Tamanho reduzido da fonte */
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
@@ -67,17 +68,22 @@
 
 @media (max-width: 768px) {
   .navbar {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
   }
 
   .navbar ul {
-      flex-direction: column;
-      gap: 12px;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .navbar li {
-      margin: 8px 0;
+    margin: 8px 0;
+  }
+
+  .navbar li,
+  .navbar a {
+    font-size: 0.85rem; /* Ajuste adicional para telas menores */
   }
 }
