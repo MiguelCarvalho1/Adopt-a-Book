@@ -124,29 +124,7 @@ module.exports = class ReviewController {
       }
       
     
-    
-    
-    
 
-    static async updateReview(req, res) {
-        const { id } = req.params;
-        const { rating, comment } = req.body;
-
-        try {
-            const review = await Review.findById(id);
-            if (!review) {
-                return res.status(404).json({ message: 'Review not found.' });
-            }
-
-            review.rating = rating || review.rating;
-            review.comment = comment || review.comment;
-            await review.save();
-
-            res.status(200).json({ message: 'Review updated successfully.', review });
-        } catch (error) {
-            res.status(500).json({ message: 'Error updating review.', error });
-        }
-    }
 
     static async deleteReview(req, res) {
         const { id } = req.params;

@@ -30,8 +30,8 @@ import Transaction from './Components/pages/Transaction/Transaction';
 /*FeedBack */
 import FeedbackPage from'./Components/pages/Feedback/FeedbackPage'
 
-/*Rankings*/
-import RankingsPage from './Components/pages/Rankings/RankingsPage'
+
+
 
 /*context*/ 
 import { UserProvider } from './context/UserContext';
@@ -59,7 +59,7 @@ function App() {
         <Route path="/transactions/sent" element={<SentTransactionsPage />} />
         <Route path="/transactions/mytransaction" element={<Transaction />} />
         <Route path="/reviews" element={<FeedbackPage/>} />
-        <Route path="/rankings" element={<RankingsPage />} />
+        
       </Routes>
       </Container>
       <Footer />
