@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_KEY = 'AIzaSyBpHmqIT6nP6hKQs1NdGCp0HJPkg4K97iE';
+const API_KEY = '';
 const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 class BookService {
