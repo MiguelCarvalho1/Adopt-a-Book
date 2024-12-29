@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../../utils/api';
-import styles from './feedback.module.css';
+import React, { useEffect, useState } from "react";
+import api from "../../../utils/api";
+import styles from "./feedback.module.css";
+
 
 function FeedbackPage() {
   const [userReviews, setUserReviews] = useState([]);
@@ -8,60 +9,71 @@ function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [userError, setUserError] = useState(null);
   const [bookError, setBookError] = useState(null);
-
-  const token = localStorage.getItem('token') || '';
+  const token = localStorage.getItem("token") || "";
 
   const getStars = (rating) => {
     let stars = [];
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5 ? 1 : 0;
     const emptyStars = 5 - fullStars - halfStar;
-  
-    // Adiciona estrelas cheias
+
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<span className={styles.star} key={`full-${i}`}>&#9733;</span>); // Estrela cheia
+      stars.push(
+        <span className={styles.star} key={`full-${rating}-${i}`}>
+          &#9733;
+        </span>
+      );
     }
-  
-    // Adiciona estrela meia
+
     if (halfStar) {
-      stars.push(<span className={styles.half} key="half">&#9733;</span>); // Estrela meia
+      stars.push(
+        <span className={styles.half} key={`half-${rating}`}>
+          &#9733;
+        </span>
+      );
     }
-  
-    // Adiciona estrelas vazias
+
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span className={styles.empty} key={`empty-${i}`}>&#9734;</span>); // Estrela vazia
+      stars.push(
+        <span className={styles.empty} key={`empty-${rating}-${i}`}>
+          &#9734;
+        </span>
+      );
     }
-  
+
     return stars;
   };
+
+
+  
+  
   useEffect(() => {
     if (!token) {
-      setUserError('User not logged in.');
-      setBookError('User not logged in.');
+      setUserError("User not logged in.");
+      setBookError("User not logged in.");
       setLoading(false);
       return;
     }
 
     const fetchUserReviews = async () => {
       try {
-        const response = await api.get('/reviews/user', {
+        const response = await api.get("/reviews/user", {
           headers: { Authorization: `Bearer ${JSON.parse(token)}` },
         });
         setUserReviews(response.data || []);
       } catch (err) {
-        setUserError('Error loading user reviews. Please try again later.');
+        setUserError("Error loading user reviews. Please try again later.");
       }
     };
 
     const fetchBookReviews = async () => {
       try {
-        const response = await api.get('/reviews/books', {
+        const response = await api.get("/reviews/books", {
           headers: { Authorization: `Bearer ${JSON.parse(token)}` },
         });
         setBookReviews(response.data || []);
       } catch (err) {
-        setBookError('Error loading book reviews. Please try again later.');
-        console.error('Error fetching book reviews:', err);
+        setBookError("Error loading book reviews. Please try again later.");
       }
     };
 
@@ -69,8 +81,6 @@ function FeedbackPage() {
       setLoading(true);
       try {
         await Promise.all([fetchUserReviews(), fetchBookReviews()]);
-      } catch (err) {
-        // Se algo der errado, você pode tratar o erro aqui, se necessário
       } finally {
         setLoading(false);
       }
@@ -95,18 +105,16 @@ function FeedbackPage() {
                 <th>Book Title</th>
                 <th>Rating</th>
                 <th>Comment</th>
-                <th>Owner</th>
                 <th>Date</th>
               </tr>
             </thead>
             <tbody>
               {userReviews.map((review) => (
                 <tr key={review._id}>
-                  <td>{review.bookTitle || 'Unknown'}</td>
+                  <td>{review.bookTitle || "Unknown"}</td>
                   <td>{getStars(review.rating)}</td>
                   <td>{review.comment}</td>
-                  <td>{review.ownerName}</td>
-                  <td>{review.createdAt || 'Unknown Date'}</td>
+                  <td>{review.createdAt || "Unknown Date"}</td>
                 </tr>
               ))}
             </tbody>
@@ -132,11 +140,11 @@ function FeedbackPage() {
             <tbody>
               {bookReviews.map((review) => (
                 <tr key={review._id}>
-                  <td>{review.bookTitle || 'Unknown'}</td>
+                  <td>{review.bookTitle || "Unknown"}</td>
                   <td>{getStars(review.rating)}</td>
                   <td>{review.comment}</td>
-                  <td>{review.reviewerName || 'Anonymous'}</td>
-                  <td>{review.createdAt || 'Unknown Date'}</td>
+                  <td>{review.reviewerName || "Anonymous"}</td>
+                  <td>{review.createdAt || "Unknown Date"}</td>
                 </tr>
               ))}
             </tbody>

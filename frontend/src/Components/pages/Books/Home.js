@@ -24,7 +24,7 @@ const Home = () => {
       const booksData = {};
       for (const genre of genres) {
         const response = await api.get(`/books/genre/${genre}`);
-        booksData[genre] = response.data.slice(0, 6);  // Limita para os 3 primeiros livros
+        booksData[genre] = response.data.slice(0, 8);  // Limita para os 3 primeiros livros
       }
       setBooksByGenre(booksData);
     } catch (error) {

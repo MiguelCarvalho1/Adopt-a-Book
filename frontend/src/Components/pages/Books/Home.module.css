@@ -37,7 +37,7 @@
   /* Container para os livros de cada gênero */
   .booksContainer {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 10px 20px;
     margin-bottom: 40px;
@@ -45,11 +45,13 @@
   
   /* Card do livro */
   .bookCard {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 240px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
   .bookCard:hover {
@@ -60,30 +62,24 @@
   /* Imagem do livro dentro do card */
   .bookThumbnail {
     max-width: 100%;
-    height: 200px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-bottom: 0.8em;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.8em;
   }
   
   /* Título do livro */
   .bookTitle {
-    font-size: 1.1rem;
-    margin: 15px 10px;
-    color: black;
-    font-weight: bold;
-    text-align: center;
+    font-size: 1.2rem;
+    color: #16479d;
+    margin-bottom: 0.5em;
   }
   
   /* Descrição do livro */
   .bookDescription {
     font-size: 0.9rem;
     color: #666;
-    margin: 0 10px 15px;
-    text-align: justify;
-    height: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.4;
   }
   
   /* Autor do livro */

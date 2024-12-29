@@ -123,43 +123,6 @@ module.exports = class ReviewController {
         }
       }
       
-    
+ 
 
-
-    static async deleteReview(req, res) {
-        const { id } = req.params;
-
-        try {
-            const review = await Review.findByIdAndDelete(id);
-            if (!review) {
-                return res.status(404).json({ message: 'Review not found.' });
-            }
-            res.status(200).json({ message: 'Review deleted successfully.' });
-        } catch (error) {
-            res.status(500).json({ message: 'Error deleting review.', error });
-        }
     }
-};
-const getStars = (rating) => {
-    let stars = '';
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
-    const emptyStars = 5 - fullStars - halfStar;
-  
-    // Adiciona estrelas cheias
-    for (let i = 0; i < fullStars; i++) {
-      stars += '<span class="star"></span>';
-    }
-  
-    // Adiciona estrelas meia
-    if (halfStar) {
-      stars += '<span class="half"></span>';
-    }
-  
-    // Adiciona estrelas vazias
-    for (let i = 0; i < emptyStars; i++) {
-      stars += '<span class="empty"></span>';
-    }
-  
-    return stars;
-  };
