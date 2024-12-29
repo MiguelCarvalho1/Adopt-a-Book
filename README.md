@@ -74,26 +74,6 @@
 
 ### Other Tools
 - **JWT (JSON Web Tokens)**: For authentication and security.
-- **Docker**: For simplifying deployment.
-
-## Next Steps
-
-### Planning
-- Create wireframes to visualize the project screens.
-- Design the database (Books, Users, Transactions, Points).
-
-### Prototyping
-- Set up the Google Books API and test book searches.
-- Develop the backend with basic endpoints (CRUD for books, users, etc.).
-
-### Iterative Development
-- Start with basic features (registration and filters).
-- Add the points system and gamification.
-
-### Testing
-- Perform unit and integration tests.
-- Validate the exchange/donation flow.
-
 ## Project Structure
 
 ```plaintext
